@@ -10,6 +10,32 @@ namespace ZkClientNET.ZkClient
 {
     public class ZkConnection : IZkConnection
     {
+
+        /** It is recommended to use quite large sessions timeouts for ZooKeeper. */
+        private static TimeSpan DEFAULT_SESSION_TIMEOUT = new TimeSpan(0, 0, 0, 0, 30000);
+
+        private ZooKeeper _zk = null;
+        //private Lock _zookeeperLock = new ReentrantLock();
+
+        private  string _servers;
+        private  TimeSpan _sessionTimeOut;
+
+        public ZkConnection(string zkServers) : this(zkServers, DEFAULT_SESSION_TIMEOUT)
+        {
+
+        }
+
+        public ZkConnection(string zkServers, TimeSpan sessionTimeOut)
+        {
+            _servers = zkServers;
+            _sessionTimeOut = sessionTimeOut;
+        }
+
+        public void Connect(IWatcher watcher)
+        {
+            throw new NotImplementedException();
+        }
+
         public void AddAuthInfo(string scheme, byte[] auth)
         {
             throw new NotImplementedException();
@@ -19,12 +45,7 @@ namespace ZkClientNET.ZkClient
         {
             throw new NotImplementedException();
         }
-
-        public void Connect(IWatcher watcher)
-        {
-            throw new NotImplementedException();
-        }
-
+   
         public string Create(string path, byte[] data, CreateMode mode)
         {
             throw new NotImplementedException();

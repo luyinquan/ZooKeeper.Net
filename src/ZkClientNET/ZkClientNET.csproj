@@ -54,6 +54,14 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ZkClient\ContentWatcher.cs" />
+    <Compile Include="ZkClient\Exceptions\ZkAuthFailedException.cs" />
+    <Compile Include="ZkClient\Exceptions\ZkBadVersionException.cs" />
+    <Compile Include="ZkClient\Exceptions\ZkException.cs" />
+    <Compile Include="ZkClient\Exceptions\ZkInterruptedException.cs" />
+    <Compile Include="ZkClient\Exceptions\ZkMarshallingError.cs" />
+    <Compile Include="ZkClient\Exceptions\ZkNodeExistsException.cs" />
+    <Compile Include="ZkClient\Exceptions\ZkNoNodeException.cs" />
+    <Compile Include="ZkClient\Exceptions\ZkTimeoutException.cs" />
     <Compile Include="ZkClient\Gateway.cs" />
     <Compile Include="ZkClient\Holder.cs" />
     <Compile Include="ZkClient\IDataUpdater.cs" />
@@ -71,8 +79,8 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Serialize\" />
-    <Folder Include="Util\" />
+    <Folder Include="ZkClient\Serialize\" />
+    <Folder Include="ZkClient\Util\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
