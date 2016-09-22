@@ -74,6 +74,7 @@
     <Compile Include="ZkClient\Serialize\BytesPushThroughSerializer.cs" />
     <Compile Include="ZkClient\Serialize\IZkSerializer.cs" />
     <Compile Include="ZkClient\Serialize\SerializableSerializer.cs" />
+    <Compile Include="ZkClient\Util\ConcurrentHashSet.cs" />
     <Compile Include="ZkClient\ZkClient.cs" />
     <Compile Include="ZkClient\ZkConnection.cs" />
     <Compile Include="ZkClient\ZkEventThread.cs" />
@@ -83,9 +84,7 @@
     <None Include="log4net.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="ZkClient\Util\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

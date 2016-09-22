@@ -16,7 +16,7 @@ namespace ZkClientNET.ZkClient
         private static readonly ILog LOG = LogManager.GetLogger(typeof(ZkConnection));
 
         /** It is recommended to use quite large sessions timeouts for ZooKeeper. */
-        private static TimeSpan DEFAULT_SESSION_TIMEOUT = new TimeSpan(0, 0, 0, 0, 30000);
+        private static TimeSpan DEFAULT_SESSION_TIMEOUT = new TimeSpan(0, 0, 0, 30000);
 
         private ZooKeeper _zk { set; get; } = null;
    
