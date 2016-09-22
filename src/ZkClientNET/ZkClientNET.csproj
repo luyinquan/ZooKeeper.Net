@@ -71,15 +71,19 @@
     <Compile Include="ZkClient\IZkDataListener.cs" />
     <Compile Include="ZkClient\IZkStateListener.cs" />
     <Compile Include="ZkClient\NetworkUtil.cs" />
+    <Compile Include="ZkClient\Serialize\BytesPushThroughSerializer.cs" />
+    <Compile Include="ZkClient\Serialize\IZkSerializer.cs" />
+    <Compile Include="ZkClient\Serialize\SerializableSerializer.cs" />
     <Compile Include="ZkClient\ZkClient.cs" />
     <Compile Include="ZkClient\ZkConnection.cs" />
-    <Compile Include="ZkClient\ZkServer.cs" />
+    <Compile Include="ZkClient\ZkEventThread.cs" />
+    <Compile Include="ZkClient\ZkLock.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="log4net.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="ZkClient\Serialize\" />
     <Folder Include="ZkClient\Util\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

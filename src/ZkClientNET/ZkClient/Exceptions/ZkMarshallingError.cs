@@ -6,7 +6,12 @@ using System.Threading.Tasks;
 
 namespace ZkClientNET.ZkClient.Exceptions
 {
-    class ZkMarshallingError : ZkException
+    public class ZkMarshallingError : ZkException
     {
+        public ZkMarshallingError() : base() { }
+
+        public ZkMarshallingError(string message) : base(message) { }
+
+        public ZkMarshallingError(Exception ex) : base(ex) { }
     }
 }
