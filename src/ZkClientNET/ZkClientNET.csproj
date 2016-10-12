@@ -62,6 +62,7 @@
     <Compile Include="ZkClient\Exceptions\ZkNodeExistsException.cs" />
     <Compile Include="ZkClient\Exceptions\ZkNoNodeException.cs" />
     <Compile Include="ZkClient\Exceptions\ZkTimeoutException.cs" />
+    <Compile Include="ZkClient\ExceptionUtil.cs" />
     <Compile Include="ZkClient\Gateway.cs" />
     <Compile Include="ZkClient\Holder.cs" />
     <Compile Include="ZkClient\IDataUpdater.cs" />

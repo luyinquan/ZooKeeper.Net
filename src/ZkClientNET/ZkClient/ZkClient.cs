@@ -149,7 +149,6 @@ namespace ZkClientNET.ZkClient
             LOG.Debug("Subscribed data changes for " + path);
         }
 
-
         public void UnSubscribeDataChanges(string path, IZkDataListener dataListener)
         {
             ConcurrentHashSet<IZkDataListener> listeners = _dataListener[path];
@@ -157,7 +156,7 @@ namespace ZkClientNET.ZkClient
             {
                 listeners.Remove(dataListener);
             }
-            if (listeners == null || listeners.IsEmpty())
+            if (listeners == null || listeners.IsEmpty()
             {
                 ConcurrentHashSet<IZkDataListener> _listeners;
                 _dataListener.TryRemove(path, out _listeners);
@@ -216,7 +215,7 @@ namespace ZkClientNET.ZkClient
             throw new NotImplementedException();
         }
 
-        private object ReadData(string path, Stat stat)
+        public object ReadData(string path, Stat stat)
         {
             throw new NotImplementedException();
         }
