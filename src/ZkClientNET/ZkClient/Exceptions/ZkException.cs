@@ -15,11 +15,11 @@ namespace ZkClientNET.ZkClient.Exceptions
 
         public ZkException(string message) : base(message) { }
 
-        public ZkException(Exception ex) { this.ex = ex; }
+        public ZkException(Exception ex) : base(ex.Message, ex) { this.ex = ex; }
 
         public ZkException(string message, Exception ex) : base(message, ex) { }
 
-        public static ZkException create(KeeperException e)
+        public static ZkException Create(KeeperException e)
         {
             switch (e.ErrorCode)
             {

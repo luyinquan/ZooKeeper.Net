@@ -24,7 +24,6 @@ namespace ZkClientNET.ZkClient
 
         private TimeSpan _sessionTimeOut { set; get; }
 
-        //private Lock _zookeeperLock = new ReentrantLock();
         private object _zookeeperLock = new object();
 
         public ZkConnection(string zkServers) : this(zkServers, DEFAULT_SESSION_TIMEOUT)
@@ -44,7 +43,7 @@ namespace ZkClientNET.ZkClient
             {
                 if (_zk != null)
                 {
-                    throw new ArgumentNullException("zk client has already been started");
+                    throw new Exception("zk client has already been started");
                 }
                 try
                 {
@@ -84,7 +83,7 @@ namespace ZkClientNET.ZkClient
             return _zk.Create(path, data, Ids.OPEN_ACL_UNSAFE, mode);
         }
 
-        public string Create(string path, byte[] data, IEnumerable<ACL> acl, CreateMode mode)
+        public string Create(string path, byte[] data, List<ACL> acl, CreateMode mode)
         {
             return _zk.Create(path, data, acl, mode);
         }
@@ -98,14 +97,15 @@ namespace ZkClientNET.ZkClient
         {
             _zk.Delete(path, version);
         }
+
         public bool Exists(string path, bool watch)
         {
             return _zk.Exists(path, watch) != null;
         }
 
-        public IEnumerable<string> GetChildren(string path, bool watch)
+        public List<string> GetChildren(string path, bool watch)
         {
-            return _zk.GetChildren(path, watch);
+            return _zk.GetChildren(path, watch).ToList();
         }
 
         public byte[] ReadData(string path, Stat stat, bool watch)
@@ -121,6 +121,11 @@ namespace ZkClientNET.ZkClient
         public void WriteData(string path, byte[] data, int version)
         {
             _zk.SetData(path, data, version);
+        }
+
+        public Stat WriteDataReturnStat(string path, byte[] data, int expectedVersion)
+        {
+            return _zk.SetData(path, data, expectedVersion);
         }
 
         public ZooKeeper.States GetZookeeperState()
@@ -143,21 +148,21 @@ namespace ZkClientNET.ZkClient
             _zk.AddAuthInfo(scheme, auth);
         }
 
-        public void SetACL(string path, IEnumerable<ACL> acl, int version)
+        public void SetACL(string path, List<ACL> acl, int version)
         {
             _zk.SetACL(path, acl, version);
         }
 
-        public KeyValuePair<IEnumerable<ACL>, Stat> GetACL(string path)
+        public KeyValuePair<List<ACL>, Stat> GetACL(string path)
         {
             Stat stat = new Stat();
-            IEnumerable<ACL> acl = _zk.GetACL(path, stat);
-            return new KeyValuePair<IEnumerable<ACL>, Stat>(acl, stat);
+            List<ACL> acl = _zk.GetACL(path, stat).ToList();
+            return new KeyValuePair<List<ACL>, Stat>(acl, stat);
         }
 
-        public Stat WriteDataReturnStat(string path, byte[] data, int expectedVersion)
+        public string GetServers()
         {
-            return _zk.SetData(path, data, expectedVersion);
+            throw new NotImplementedException();
         }
     }
 }

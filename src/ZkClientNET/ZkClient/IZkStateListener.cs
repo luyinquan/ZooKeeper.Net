@@ -14,7 +14,7 @@ namespace ZkClientNET.ZkClient
         /// Called when the zookeeper connection state has changed.
         /// </summary>
         /// <param name="state"></param>
-        void handleStateChanged(KeeperState state);
+        void HandleStateChanged(KeeperState state);
 
         /// <summary>
         ///  Called after the zookeeper session has expired and a new session has been created. You would have to re-create
@@ -28,5 +28,6 @@ namespace ZkClientNET.ZkClient
         /// </summary>
         /// <param name="error"></param>
         void HandleSessionEstablishmentError(Exception error);
+
     }
 }

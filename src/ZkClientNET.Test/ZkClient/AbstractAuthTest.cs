@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZkClientNET.ZkClient
+namespace ZkClientNET.Test.ZkClient
 {
-    public class NetworkUtil
+   public class AbstractAuthTest
     {
 
     }

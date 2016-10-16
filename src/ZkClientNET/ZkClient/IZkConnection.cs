@@ -16,7 +16,7 @@ namespace ZkClientNET.ZkClient
 
         string Create(string path, byte[] data, CreateMode mode);
 
-        string Create(string path, byte[] data, IEnumerable<ACL> acl, CreateMode mode);
+        string Create(string path, byte[] data, List<ACL> acl, CreateMode mode);
 
         void Delete(string path);
 
@@ -24,7 +24,7 @@ namespace ZkClientNET.ZkClient
 
         bool Exists(string path, bool watch);
 
-        IEnumerable<string> GetChildren(string path, bool watch);
+        List<string> GetChildren(string path, bool watch);
 
         byte[] ReadData(string path, Stat stat, bool watch);
 
@@ -36,12 +36,14 @@ namespace ZkClientNET.ZkClient
 
         long GetCreateTime(string path);
 
-        // IEnumerable<OpResult> multi(Iterable<Op> ops) throws KeeperException, InterruptedException;
+        string GetServers();
+
+        //List<OpResult> Multi(List<Op> ops);
 
         void AddAuthInfo(string scheme, byte[] auth);
 
-        void SetACL(string path, IEnumerable<ACL> acl, int version);
+        void SetACL(string path, List<ACL> acl, int version);
 
-        KeyValuePair<IEnumerable<ACL>, Stat> GetACL(string path);
+        KeyValuePair<List<ACL>, Stat> GetACL(string path);
     }
 }
