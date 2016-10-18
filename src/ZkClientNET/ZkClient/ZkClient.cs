@@ -22,10 +22,6 @@ namespace ZkClientNET.ZkClient
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(ZkClient));
 
-        protected const string JAVA_LOGIN_CONFIG_PARAM = "java.security.auth.login.config";
-        protected const string ZK_SASL_CLIENT = "zookeeper.sasl.client";
-        protected const string ZK_LOGIN_CONTEXT_NAME_KEY = "zookeeper.sasl.clientconfig";
-
         protected IZkConnection _connection;
         protected long _operationRetryTimeoutInMillis;
         private ConcurrentDictionary<string, ConcurrentHashSet<IZkChildListener>> _childListener = new ConcurrentDictionary<string, ConcurrentHashSet<IZkChildListener>>();
@@ -447,7 +443,7 @@ namespace ZkClientNET.ZkClient
         {
             return Create(path, data, acl, CreateMode.EphemeralSequential);
         }
-     
+
         private void FireAllEvents()
         {
             foreach (string _key in _childListener.Keys)
@@ -662,8 +658,8 @@ namespace ZkClientNET.ZkClient
                 foreach (IZkChildListener listener in childListeners)
                 {
                     //_eventThread.Send(new ZkEventThread.ZkEvent("Children of " + path + " changed sent to " + listener)
-                     _eventTask.Send(new ZkTask.ZkEvent("Children of " + path + " changed sent to " + listener)
-                     {
+                    _eventTask.Send(new ZkTask.ZkEvent("Children of " + path + " changed sent to " + listener)
+                    {
                         Run = () =>
                         {
                             try
@@ -686,7 +682,7 @@ namespace ZkClientNET.ZkClient
                 LOG.Error("Failed to fire child changed event. Unable to getChildren.  ", e);
             }
         }
-     
+
         public bool Delete(string path)
         {
             return Delete(path, -1);
@@ -857,7 +853,6 @@ namespace ZkClientNET.ZkClient
             bool started = false;
             lock (_zkEventLock)
             {
-
                 try
                 {
                     _shutdownTriggered = false;
@@ -904,10 +899,6 @@ namespace ZkClientNET.ZkClient
                 {
                     throw new ZkInterruptedException(e);
                 }
-                finally
-                {
-
-                } 
             }
         }
 
@@ -935,10 +926,6 @@ namespace ZkClientNET.ZkClient
                 {
                     throw new ZkInterruptedException(e);
                 }
-                finally
-                {
-
-                } 
             }
             LOG.Debug("Closing ZkClient...done");
         }
@@ -956,10 +943,6 @@ namespace ZkClientNET.ZkClient
                 {
                     throw new ZkInterruptedException(e);
                 }
-                finally
-                {
-
-                } 
             }
         }
 
@@ -1019,33 +1002,25 @@ namespace ZkClientNET.ZkClient
                 return true;
             }
 
-            try
+            lock (_zkEventLock)
             {
-                while (!Exists(path, true))
+                try
                 {
-                    //bool gotSignal = _zkEventLock._zNodeEventCondition.WaitOne(timeOut, false);
-                    Task<bool> task = new Task<bool>(() =>
-                    {                     
-                        return _zNodeEventCondition == 1;
-                    });
-                    task.Start();
-                    task.Wait(timeOut);
-                    bool gotSignal = task.Result;
-                    if (!gotSignal)
+                    while (!Exists(path, true))
                     {
-                        return false;
+                        bool gotSignal = _zNodeEventCondition.WaitOne(timeOut);
+                        if (!gotSignal)
+                        {
+                            return false;
+                        }
                     }
+                    return true;
                 }
-                return true;
-            }
-            catch (ThreadInterruptedException e)
-            {
-                throw new ZkInterruptedException(e);
-            }
-            finally
-            {
-
-            }
+                catch (ThreadInterruptedException e)
+                {
+                    throw new ZkInterruptedException(e);
+                }
+            }       
         }
 
         public void WaitUntilConnected()
@@ -1075,14 +1050,7 @@ namespace ZkClientNET.ZkClient
                     {
                         return false;
                     }
-                    Task<bool> task = new Task<bool>(() => 
-                    {
-                        return _stateChangedCondition == 1;
-                    });
-                    task.Start();
-                    task.Wait(timeOut);
-                    stillWaiting = task.Result;
-                    //stillWaiting = _zkEventLock._stateChangedCondition.WaitOne(timeOut, false);
+                    stillWaiting = _stateChangedCondition.WaitOne(timeOut);
                     // Throw an exception in the case authorization fails
                 }
                 LOG.Debug("State is " + _currentState);
@@ -1116,15 +1084,14 @@ namespace ZkClientNET.ZkClient
             }
         }
 
-        private volatile int _stateChangedCondition = 0;
-        private volatile int _zNodeEventCondition = 0;
-        private volatile int _dataChangedCondition = 0;
+        private Mutex _stateChangedCondition = new Mutex();
+        private Mutex _zNodeEventCondition = new Mutex();
+        private Mutex _dataChangedCondition = new Mutex();
 
         public void Process(WatchedEvent @event)
         {
             LOG.Debug("Received event: " + @event.Path);
             _zookeeperEventThread = Thread.CurrentThread;
-
 
             bool stateChanged = @event.Path == null;
             bool znodeChanged = @event.Path != null;
@@ -1143,36 +1110,21 @@ namespace ZkClientNET.ZkClient
                 }
                 if (stateChanged)
                 {
-                    if (0 == Interlocked.Exchange(ref _stateChangedCondition, 1))
-                    {
-                        ProcessStateChanged(@event);
-                    }
+                    ProcessStateChanged(@event);
                 }
                 if (znodeChanged)
                 {
-                    if (0 == Interlocked.Exchange(ref _zNodeEventCondition, 1))
-                    {
-
-                    }
                 }
                 if (dataChanged)
                 {
-                    if (0 == Interlocked.Exchange(ref _dataChangedCondition, 1))
-                    {
-                        ProcessDataOrChildChange(@event);
-                    }
+                    ProcessDataOrChildChange(@event);
                 }
             }
             finally
             {
                 if (stateChanged)
                 {
-                    //_zkEventLock._stateChangedCondition.Reset();
-                    if (_stateChangedCondition == 1)
-                    {
-                        Interlocked.Exchange(ref _stateChangedCondition, 0);
-                    }
-
+                    _stateChangedCondition.ReleaseMutex();
 
                     // If the session expired we have to signal all conditions, because watches might have been removed and
                     // there is no guarantee that those
@@ -1180,41 +1132,23 @@ namespace ZkClientNET.ZkClient
                     // TODO PVo write a test for this
                     if (@event.State == KeeperState.Expired)
                     {
-                        // _zkEventLock._zNodeEventCondition.Reset();
-                        //_zkEventLock._dataChangedCondition.Reset();
+                        _zNodeEventCondition.ReleaseMutex();
 
-                        if (_zNodeEventCondition == 1)
-                        {
-                            Interlocked.Exchange(ref _zNodeEventCondition, 0);
-                        }
+                        _dataChangedCondition.ReleaseMutex();
 
-                        if (_dataChangedCondition == 1)
-                        {
-                            Interlocked.Exchange(ref _dataChangedCondition, 0);
-                        }
                         // We also have to notify all listeners that something might have changed
                         FireAllEvents();
-                    }
-                    if (znodeChanged)
-                    {
-                        //_zkEventLock._zNodeEventCondition.Reset();
-
-                        if (_zNodeEventCondition == 1)
-                        {
-                            Interlocked.Exchange(ref _zNodeEventCondition, 0);
-                        }
-                    }
-                    if (dataChanged)
-                    {
-                        //_zkEventLock._dataChangedCondition.Reset();
-
-                        if (_dataChangedCondition == 1)
-                        {
-                            Interlocked.Exchange(ref _dataChangedCondition, 0);
-                        }
-                    }
-                    LOG.Debug("Leaving process event");
+                    }                                   
                 }
+                if (znodeChanged)
+                {
+                    _zNodeEventCondition.ReleaseMutex();
+                }
+                if (dataChanged)
+                {
+                    _dataChangedCondition.ReleaseMutex();
+                }
+                LOG.Debug("Leaving process event");
             }
         }
 

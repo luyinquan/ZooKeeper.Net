@@ -12,11 +12,14 @@ namespace ZkClientNET.ZkClient
     public class ContentWatcher<T> : IZkDataListener
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(ContentWatcher<T>));
-        private int _contentLock =0;
+        private object _contentLock = new object();
+        private static Mutex mutex = new Mutex();
 
         private Holder<T> _content;
         private string _fileName;
         private ZkClient _zkClient;
+
+      
 
         public ContentWatcher(ZkClient zkClient, string fileName)
         {
@@ -49,11 +52,12 @@ namespace ZkClientNET.ZkClient
 
         private void SetContent(T data)
         {
-            LOG.Debug("Received new data: " + data);
-            if (0 == Interlocked.Exchange(ref _contentLock, 1))
+            lock (_contentLock)
             {
+                LOG.Debug("Received new data: " + data);
                 _content = new Holder<T>(data);
-            }
+                mutex.ReleaseMutex();
+            }        
         }
 
         public void HandleDataChange(string dataPath, object data)
@@ -70,8 +74,8 @@ namespace ZkClientNET.ZkClient
         {
             while (_content == null)
             {
-                Interlocked.Exchange(ref _contentLock, 0);
-            }
+                mutex.WaitOne();
+            };
             return _content._value;
         }
 

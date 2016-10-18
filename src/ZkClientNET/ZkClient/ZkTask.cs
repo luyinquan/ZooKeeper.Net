@@ -45,16 +45,16 @@ namespace ZkClientNET.ZkClient
             tokenSource = new CancellationTokenSource();
             _zkTask = new Task(Run, tokenSource.Token);
         }
+  
+        public void Start()
+        {
+            _zkTask.Start();
+        }
 
         public void ReSet()
         {
             tokenSource = new CancellationTokenSource();
             _zkTask = new Task(Run, tokenSource.Token);
-        }
-
-        public void Start()
-        {
-            _zkTask.Start();
         }
 
         public void Run()
@@ -84,7 +84,7 @@ namespace ZkClientNET.ZkClient
 
         public void Send(ZkEvent @event)
         {
-            if (_zkTask.Status != TaskStatus.Canceled)
+            if (_zkTask != null && _zkTask.Status != TaskStatus.Canceled)
             {
                 LOG.Debug("New event: " + @event);
                 _events.Add(@event);

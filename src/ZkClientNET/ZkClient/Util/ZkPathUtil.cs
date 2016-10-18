@@ -10,7 +10,7 @@ namespace ZkClientNET.ZkClient.Util
     {
         public static string LeadingZeros(long number, int numberOfLeadingZeros)
         {
-            return string.Format("{0}{1}d", number, numberOfLeadingZeros);
+            return number.ToString().PadLeft(numberOfLeadingZeros, '0');
         }
 
         public static string ToString(ZkClient zkClient)
@@ -41,7 +41,7 @@ namespace ZkClientNET.ZkClient.Util
                 {
                     nestedPath = startPath + "/" + node;
                 }
-                if (pathFilter.showChilds(nestedPath))
+                if (pathFilter.ShowChilds(nestedPath))
                 {
                     builder.Append(GetSpaces(level - 1) + "'-" + "+" + node + "\n");
                     AddChildrenTostringBuilder(zkClient, pathFilter, level + 1, builder, nestedPath);
@@ -65,12 +65,12 @@ namespace ZkClientNET.ZkClient.Util
 
         public interface IPathFilter
         {
-            bool showChilds(string path);
+            bool ShowChilds(string path);
         }
 
         public class PathFilter : IPathFilter
         {
-            public bool showChilds(string path)
+            public bool ShowChilds(string path)
             {
                 return true;
             }

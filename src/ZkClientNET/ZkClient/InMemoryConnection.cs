@@ -18,8 +18,8 @@ namespace ZkClientNET.ZkClient
         public class DataAndVersion
         {
             public byte[] data { set; get; }
-            public int version;
-            public List<ACL> acl;
+            public int version { set; get; }
+            public List<ACL> acl { set; get; }
 
             public DataAndVersion(byte[] data, int version, List<ACL> acl)
             {
@@ -94,7 +94,7 @@ namespace ZkClientNET.ZkClient
 
             public void Send(WatchedEvent @event)
             {
-                if (_eventTask.Status != TaskStatus.Canceled)
+                if (_eventTask != null && _eventTask.Status != TaskStatus.Canceled)
                 {
                     _blockingQueue.Add(@event);
                 }
@@ -159,14 +159,13 @@ namespace ZkClientNET.ZkClient
 
         public string Create(string path, byte[] data, List<ACL> acl, CreateMode mode)
         {
-            try
+            lock (_lock)
             {
-
                 if (mode.Sequential)
                 {
                     Interlocked.Increment(ref sequence);
                     int newSequence = sequence;
-                   path = path + ZkPathUtil.LeadingZeros(newSequence, 10);
+                    path = path + ZkPathUtil.LeadingZeros(newSequence, 10);
                 }
 
                 if (Exists(path, false))
@@ -174,7 +173,7 @@ namespace ZkClientNET.ZkClient
                     throw new KeeperException.NodeExistsException();
                 }
                 string parentPath = GetParentPath(path);
-                CheckACL(parentPath,Perms.CREATE);
+                CheckACL(parentPath, Perms.CREATE);
                 _data.Add(path, new DataAndVersion(data, 0, acl));
                 _creationTime.Add(path, DateTime.Now.ToUnixTime());
                 CheckWatch(_nodeWatches, path, EventType.NodeCreated);
@@ -184,10 +183,6 @@ namespace ZkClientNET.ZkClient
                     CheckWatch(_nodeWatches, parentPath, EventType.NodeChildrenChanged);
                 }
                 return path;
-            }
-            finally
-            {
-                
             }
         }
 
@@ -213,55 +208,42 @@ namespace ZkClientNET.ZkClient
 
         public void Delete(string path, int version)
         {
-            try
+            lock (_lock)
             {
-                lock (_lock)
+                if (!Exists(path, false))
                 {
-                    if (!Exists(path, false))
+                    throw new KeeperException.NoNodeException();
+                }
+                string parentPath = GetParentPath(path);
+                CheckACL(parentPath, Perms.DELETE);
+                // If version isn't -1, check that it mateches
+                if (version != -1)
+                {
+                    DataAndVersion item = _data[path];
+                    if (item.version != version)
                     {
-                        throw new KeeperException.NoNodeException();
-                    }
-                    string parentPath = GetParentPath(path);
-                    CheckACL(parentPath, Perms.DELETE);
-                    // If version isn't -1, check that it mateches
-                    if (version != -1)
-                    {
-                        DataAndVersion item = _data[path];
-                        if (item.version != version)
-                        {
-                            throw KeeperException.Create(Code.BADVERSION);
-                        }
-                    }
-                    _data.Remove(path);
-                    _creationTime.Remove(path);
-                    CheckWatch(_nodeWatches, path, EventType.NodeDeleted);
-                    if (parentPath != null)
-                    {
-                        CheckWatch(_nodeWatches, parentPath, EventType.NodeChildrenChanged);
+                        throw KeeperException.Create(Code.BADVERSION);
                     }
                 }
-            }
-            finally
-            {
+                _data.Remove(path);
+                _creationTime.Remove(path);
+                CheckWatch(_nodeWatches, path, EventType.NodeDeleted);
+                if (parentPath != null)
+                {
+                    CheckWatch(_nodeWatches, parentPath, EventType.NodeChildrenChanged);
+                }
             }
         }
 
         public bool Exists(string path, bool watch)
         {
-            try
+            lock (_lock)
             {
-                lock (_lock)
+                if (watch)
                 {
-                    if (watch)
-                    {
-                        InstallWatch(_nodeWatches, path);
-                    }
-                    return _data.ContainsKey(path); 
+                    InstallWatch(_nodeWatches, path);
                 }
-            }
-            finally
-            {
-
+                return _data.ContainsKey(path);
             }
         }
 
@@ -303,20 +285,13 @@ namespace ZkClientNET.ZkClient
 
         public ZooKeeper.States GetZookeeperState()
         {
-            try
+            lock (_lock)
             {
-                lock (_lock)
+                if (_eventTask == null)
                 {
-                    if (_eventTask == null)
-                    {
-                        return ZooKeeper.States.CLOSED;
-                    }
-                    return ZooKeeper.States.CONNECTED;
+                    return ZooKeeper.States.CLOSED;
                 }
-            }
-            finally
-            {
-
+                return ZooKeeper.States.CONNECTED;
             }
         }
 
@@ -327,25 +302,18 @@ namespace ZkClientNET.ZkClient
                 InstallWatch(_dataWatches, path);
             }
 
-            try
+            lock (_lock)
             {
-                lock (_lock)
+                DataAndVersion dataAndVersion = _data[path];
+                if (dataAndVersion == null)
                 {
-                    DataAndVersion dataAndVersion = _data[path];
-                    if (dataAndVersion == null)
-                    {
-                        throw new ZkNoNodeException(new KeeperException.NoNodeException());
-                    }
-                    CheckACL(path, Perms.READ);
-                    byte[] bs = dataAndVersion.data;
-                    if (stat != null)
-                        stat.Version = dataAndVersion.version;
-                    return bs; 
+                    throw new ZkNoNodeException(new KeeperException.NoNodeException());
                 }
-            }
-            finally
-            {
-
+                CheckACL(path, Perms.READ);
+                byte[] bs = dataAndVersion.data;
+                if (stat != null)
+                    stat.Version = dataAndVersion.version;
+                return bs;
             }
         }
 
@@ -357,28 +325,21 @@ namespace ZkClientNET.ZkClient
         public Stat WriteDataReturnStat(string path, byte[] data, int expectedVersion)
         {
             int newVersion = -1;
-            try
+            lock (_lock)
             {
-                lock (_lock)
+                CheckWatch(_dataWatches, path, EventType.NodeDataChanged);
+                if (!Exists(path, false))
                 {
-                    CheckWatch(_dataWatches, path, EventType.NodeDataChanged);
-                    if (!Exists(path, false))
-                    {
-                        throw new KeeperException.NoNodeException();
-                    }
-                    CheckACL(path, Perms.WRITE);
-                    newVersion = _data[path].version + 1;
-                    _data.Add(path, new DataAndVersion(data, newVersion));
-                    string parentPath = GetParentPath(path);
-                    if (parentPath != null)
-                    {
-                        CheckWatch(_nodeWatches, parentPath, EventType.NodeChildrenChanged);
-                    }
+                    throw new KeeperException.NoNodeException();
                 }
-            }
-            finally
-            {
-
+                CheckACL(path, Perms.WRITE);
+                newVersion = _data[path].version + 1;
+                _data.Add(path, new DataAndVersion(data, newVersion));
+                string parentPath = GetParentPath(path);
+                if (parentPath != null)
+                {
+                    CheckWatch(_nodeWatches, parentPath, EventType.NodeChildrenChanged);
+                }
             }
             Stat stat = new Stat();
             stat.Version = newVersion;
@@ -413,7 +374,7 @@ namespace ZkClientNET.ZkClient
         {
             _ids.Add(new ZKId(scheme, Encoding.Default.GetString(auth)));
         }
-                                             
+
         public void SetACL(string path, List<ACL> acl, int version)
         {
             if (!Exists(path, false))
@@ -428,16 +389,10 @@ namespace ZkClientNET.ZkClient
             }
 
             CheckACL(path, Perms.ADMIN);
-    
-            try
+
+            lock (_lock)
             {
-                lock (_lock)
-                {
-                    _data.Add(path, new DataAndVersion(dataAndVersion.data, dataAndVersion.version + 1, acl)); 
-                }
-            }
-            finally
-            {
+                _data.Add(path, new DataAndVersion(dataAndVersion.data, dataAndVersion.version + 1, acl));
             }
         }
 

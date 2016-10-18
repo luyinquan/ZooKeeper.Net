@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 namespace ZkClientNET.ZkClient
 {
     public class GatewayTask
-    {
-        public Task gatewayTask;
+    {       
         private static readonly ILog LOG = LogManager.GetLogger(typeof(GatewayTask));
+        private Task _gatewayTask;
         private int _port;
         private int _destinationPort;
         private int _lock = 0;
@@ -27,8 +27,13 @@ namespace ZkClientNET.ZkClient
         {
             _port = port;
             _destinationPort = destinationPort;
-            gatewayTask = new Task(Run, tokenSource.Token);
+            _gatewayTask = new Task(Run, tokenSource.Token).ContinueWith((task) =>
+            {
+                ServerSocketClose();
+            }, TaskContinuationOptions.OnlyOnFaulted);
         }
+
+        private Mutex _runningCondition = new Mutex();
 
         public void Run()
         {
@@ -41,10 +46,8 @@ namespace ZkClientNET.ZkClient
                     _serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                     _serverSocket.Bind(new IPEndPoint(IPAddress.Parse(host), _port));
 
-                    if (0 == Interlocked.Exchange(ref _lock, 1))
-                    {
-                        _running = true;
-                    }
+                    _running = true;
+                    _runningCondition.ReleaseMutex();
 
                     #region while
                     while (true)
@@ -99,7 +102,21 @@ namespace ZkClientNET.ZkClient
                                 LOG.Error("error on stopping closing sockets", socketException);
                             }
                         }
-                        , writeTokenSource.Token);
+                        , writeTokenSource.Token)
+                        .ContinueWith((task) =>
+                        {
+                            try
+                            {
+                                socket.Close();
+                                socket.Dispose();
+                                outgoingSocket.Close();
+                                outgoingSocket.Dispose();
+                            }
+                            catch (SocketException socketException)
+                            {
+                                LOG.Error("error on stopping closing sockets", socketException);
+                            }
+                        }, TaskContinuationOptions.OnlyOnFaulted); ;
 
                         CancellationTokenSource readTokenSource = new CancellationTokenSource();
                         Task readTask = new Task(() =>
@@ -126,24 +143,8 @@ namespace ZkClientNET.ZkClient
                         }, readTokenSource.Token);
 
                         writeTask.Start();
-                        try
-                        {
-                            writeTask.Wait();
-                        }
-                        catch (AggregateException e)
-                        {
-                            writeTokenSource.Cancel();
-                        }
 
                         readTask.Start();
-                        try
-                        {
-                            readTask.Wait();
-                        }
-                        catch (AggregateException e)
-                        {
-                            readTokenSource.Cancel();
-                        }
                     } 
                     #endregion
                 }
@@ -161,6 +162,11 @@ namespace ZkClientNET.ZkClient
                 }
             }
 
+            ServerSocketClose();
+        }
+
+        public void ServerSocketClose()
+        {
             try
             {
                 _serverSocket.Close();
@@ -174,13 +180,13 @@ namespace ZkClientNET.ZkClient
 
         public void Start()
         {
-            gatewayTask.Start();
+            _gatewayTask.Start();
         }
 
         public void ReSet()
         {
             tokenSource = new CancellationTokenSource();
-            gatewayTask = new Task(Run, tokenSource.Token);
+            _gatewayTask = new Task(Run, tokenSource.Token);
         }
 
         protected void CloseQuietly(Socket closable)
@@ -198,18 +204,15 @@ namespace ZkClientNET.ZkClient
         public void CancelAndWait()
         {
             tokenSource.Cancel();
-            gatewayTask.Wait();
+            _gatewayTask.Wait();
         }
 
         public void AwaitUp()
         {
-            Task.Factory.StartNew(() =>
+            while (!_running)
             {
-                while (!_running)
-                {
-                    Interlocked.Exchange(ref _lock, 0);
-                }
-            });
+                _runningCondition.WaitOne();
+            }     
         }
     }
 }
