@@ -2,7 +2,7 @@
 A zookeeper client, that makes life a little easier. Implemented by .Net. Reference https://github.com/sgroschupf/zkclient
 
 # Quick Start
-    ```C#
+    ```
     public string ZKServers = "192.168.30.164:2181,192.168.30.165:2181,192.168.30.166:2181";
 
     public void CreateSession()
@@ -49,7 +49,6 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
         Console.WriteLine("conneted ok!");
 
         bool e = zkClient.Exists("/testUserNode");
-        //返回 true表示节点存在 ，false表示不存在  
         Console.WriteLine(e);
         zkClient.Close();
         zkClient = null;
