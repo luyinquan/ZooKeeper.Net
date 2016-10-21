@@ -30,8 +30,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=1.2.15.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <HintPath>..\packages\log4net.2.0.5\lib\net45-full\log4net.dll</HintPath>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <HintPath>..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -52,39 +52,40 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ZkClient\DistributedQueue.cs" />
-    <Compile Include="ZkClient\GatewayTask.cs" />
-    <Compile Include="ZkClient\InMemoryConnection.cs" />
+    <Compile Include="DistributedQueue.cs" />
+    <Compile Include="InMemoryConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ZkClient\ContentWatcher.cs" />
-    <Compile Include="ZkClient\Exceptions\ZkBadVersionException.cs" />
-    <Compile Include="ZkClient\Exceptions\ZkException.cs" />
-    <Compile Include="ZkClient\Exceptions\ZkInterruptedException.cs" />
-    <Compile Include="ZkClient\Exceptions\ZkMarshallingError.cs" />
-    <Compile Include="ZkClient\Exceptions\ZkNodeExistsException.cs" />
-    <Compile Include="ZkClient\Exceptions\ZkNoNodeException.cs" />
-    <Compile Include="ZkClient\Exceptions\ZkTimeoutException.cs" />
-    <Compile Include="ZkClient\ExceptionUtil.cs" />
-    <Compile Include="ZkClient\Gateway.cs" />
-    <Compile Include="ZkClient\Holder.cs" />
-    <Compile Include="ZkClient\IDataUpdater.cs" />
-    <Compile Include="ZkClient\IDefaultNameSpace.cs" />
-    <Compile Include="ZkClient\IZkChildListener.cs" />
-    <Compile Include="ZkClient\IZkConnection.cs" />
-    <Compile Include="ZkClient\IZkDataListener.cs" />
-    <Compile Include="ZkClient\IZkStateListener.cs" />
-    <Compile Include="ZkClient\Serialize\BytesPushThroughSerializer.cs" />
-    <Compile Include="ZkClient\Serialize\IZkSerializer.cs" />
-    <Compile Include="ZkClient\Serialize\SerializableSerializer.cs" />
-    <Compile Include="ZkClient\Util\ConcurrentHashSet.cs" />
-    <Compile Include="ZkClient\Util\DateTimeExtensions.cs" />
-    <Compile Include="ZkClient\Util\ZkPathUtil.cs" />
-    <Compile Include="ZkClient\ZkClient.cs" />
-    <Compile Include="ZkClient\ZkConnection.cs" />
-    <Compile Include="ZkClient\ZkTask.cs" />
+    <Compile Include="ContentWatcher.cs" />
+    <Compile Include="Exceptions\ZkBadVersionException.cs" />
+    <Compile Include="Exceptions\ZkException.cs" />
+    <Compile Include="Exceptions\ZkInterruptedException.cs" />
+    <Compile Include="Exceptions\ZkMarshallingError.cs" />
+    <Compile Include="Exceptions\ZkNodeExistsException.cs" />
+    <Compile Include="Exceptions\ZkNoNodeException.cs" />
+    <Compile Include="Exceptions\ZkTimeoutException.cs" />
+    <Compile Include="ExceptionUtil.cs" />
+    <Compile Include="Holder.cs" />
+    <Compile Include="IDataUpdater.cs" />
+    <Compile Include="IDefaultNameSpace.cs" />
+    <Compile Include="IZkChildListener.cs" />
+    <Compile Include="IZkConnection.cs" />
+    <Compile Include="IZkDataListener.cs" />
+    <Compile Include="IZkStateListener.cs" />
+    <Compile Include="Serialize\BytesPushThroughSerializer.cs" />
+    <Compile Include="Serialize\IZkSerializer.cs" />
+    <Compile Include="Serialize\SerializableSerializer.cs" />
+    <Compile Include="Serialize\ZkMarshallingError.cs" />
+    <Compile Include="Util\ConcurrentHashSet.cs" />
+    <Compile Include="Util\DateTimeExtensions.cs" />
+    <Compile Include="Util\ZkPathUtil.cs" />
+    <Compile Include="ZkClient.cs" />
+    <Compile Include="ZkConnection.cs" />
+    <Compile Include="ZkTask.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="log4net.config" />
+    <None Include="log4net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
