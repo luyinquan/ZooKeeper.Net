@@ -243,7 +243,7 @@ namespace ZKClientNETTest.Test
             ZKChildListener listener = new ZKChildListener();
             listener.childChangeEvent += (parentPath, currentChilds) =>
             {
-                Interlocked.Increment(count);
+                Interlocked.Increment(ref count);
                 children.value = currentChilds;
             };
             _zkClient.SubscribeChildChanges(path, listener);
