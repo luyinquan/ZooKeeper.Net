@@ -4,14 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZkClientNET.Exceptions
+namespace ZKClientNET.Exceptions
 {
-    public class ZkMarshallingError : ZkException
+    public class ZKMarshallingError : ZKException
     {
-        public ZkMarshallingError() : base() { }
+        public ZKMarshallingError() : base() { }
 
-        public ZkMarshallingError(string message) : base(message) { }
+        public ZKMarshallingError(string message) : base(message) { }
 
-        public ZkMarshallingError(Exception ex) : base(ex) { }
+        public ZKMarshallingError(Exception ex) : base(ex) { }
     }
 }

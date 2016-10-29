@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZkClientNET.Util
+namespace ZKClientNET.Util
 {
     public static class DateTimeExtensions
     {

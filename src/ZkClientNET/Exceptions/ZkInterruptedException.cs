@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ZkClientNET.Exceptions
+namespace ZKClientNET.Exceptions
 {
-    public class ZkInterruptedException : ZkException
+    public class ZKInterruptedException : ZKException
     {
-        public ZkInterruptedException(ThreadInterruptedException ex) : base(ex)
+        public ZKInterruptedException(ThreadInterruptedException ex) : base(ex)
         {
             Thread.CurrentThread.Interrupt();
         }

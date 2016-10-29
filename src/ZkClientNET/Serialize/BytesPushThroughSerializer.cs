@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZkClientNET.Serialize
+namespace ZKClientNET.Serialize
 {
-    public class BytesPushThroughSerializer : IZkSerializer
+    public class BytesPushThroughSerializer : IZKSerializer
     {
         public byte[] Serialize(object bytes)
         {

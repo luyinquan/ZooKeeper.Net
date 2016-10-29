@@ -5,16 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using ZooKeeperNet;
 
-namespace ZkClientNET.Exceptions
+namespace ZKClientNET.Exceptions
 {
-    public class ZkBadVersionException : ZkException
+    public class ZKBadVersionException : ZKException
     {
-        public ZkBadVersionException() : base() { }
+        public ZKBadVersionException() : base() { }
 
-        public ZkBadVersionException(string message) : base(message) { }
+        public ZKBadVersionException(string message) : base(message) { }
 
-        public ZkBadVersionException(KeeperException ex) : base(ex) { }
+        public ZKBadVersionException(KeeperException ex) : base(ex) { }
 
-        public ZkBadVersionException(string message, KeeperException ex) : base(message, ex) { }
+        public ZKBadVersionException(string message, KeeperException ex) : base(message, ex) { }
     }
 }

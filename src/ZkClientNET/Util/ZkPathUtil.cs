@@ -3,22 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ZKClientNET.Client;
 
-namespace ZkClientNET.Util
+namespace ZKClientNET.Util
 {
-    public class ZkPathUtil
+    public class ZKPathUtil
     {
         public static string LeadingZeros(long number, int numberOfLeadingZeros)
         {
             return number.ToString().PadLeft(numberOfLeadingZeros, '0');
         }
 
-        public static string ToString(ZkClient zkClient)
+        public static string ToString(ZKClient zkClient)
         {
             return ToString(zkClient, "/", new PathFilter());
         }
 
-        public static string ToString(ZkClient zkClient, string startPath, IPathFilter pathFilter)
+        public static string ToString(ZKClient zkClient, string startPath, IPathFilter pathFilter)
         {
             int level = 1;
             StringBuilder builder = new StringBuilder("+ (" + startPath + ")");
@@ -27,7 +28,7 @@ namespace ZkClientNET.Util
             return builder.ToString();
         }
 
-        private static void AddChildrenTostringBuilder(ZkClient zkClient, IPathFilter pathFilter, int level, StringBuilder builder, string startPath)
+        private static void AddChildrenTostringBuilder(ZKClient zkClient, IPathFilter pathFilter, int level, StringBuilder builder, string startPath)
         {
             List<string> children = zkClient.GetChildren(startPath);
             foreach (string node in children)

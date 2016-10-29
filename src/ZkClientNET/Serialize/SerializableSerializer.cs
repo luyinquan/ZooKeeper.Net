@@ -2,9 +2,9 @@
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace ZkClientNET.Serialize
+namespace ZKClientNET.Serialize
 {
-    public class SerializableSerializer : IZkSerializer
+    public class SerializableSerializer : IZKSerializer
     {
         public byte[] Serialize(object obj)
         {
@@ -19,7 +19,7 @@ namespace ZkClientNET.Serialize
             }
             catch (IOException e)
             {
-                throw new ZkMarshallingError(e);
+                throw;
             }
         }
 
@@ -35,7 +35,7 @@ namespace ZkClientNET.Serialize
             }
             catch (IOException e)
             {
-                throw new ZkMarshallingError(e);
+                throw;
             }
         }
     }

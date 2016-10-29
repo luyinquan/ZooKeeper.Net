@@ -5,16 +5,16 @@ using System.Text;
 using System.Threading.Tasks;
 using ZooKeeperNet;
 
-namespace ZkClientNET.Exceptions
+namespace ZKClientNET.Exceptions
 {
-    public class ZkNodeExistsException : ZkException
+    public class ZKNodeExistsException : ZKException
     {
-        public ZkNodeExistsException() : base() { }
+        public ZKNodeExistsException() : base() { }
 
-        public ZkNodeExistsException(string message) : base(message) { }
+        public ZKNodeExistsException(string message) : base(message) { }
 
-        public ZkNodeExistsException(KeeperException ex) : base(ex) { }
+        public ZKNodeExistsException(KeeperException ex) : base(ex) { }
 
-        public ZkNodeExistsException(string message, KeeperException ex) : base(message, ex) { }
+        public ZKNodeExistsException(string message, KeeperException ex) : base(message, ex) { }
     }     
 }

@@ -5,17 +5,17 @@ using System.Text;
 using System.Threading.Tasks;
 using ZooKeeperNet;
 
-namespace ZkClientNET.Exceptions
+namespace ZKClientNET.Exceptions
 {
-    public class ZkNoNodeException : ZkException
+    public class ZKNoNodeException : ZKException
     {
-        public ZkNoNodeException() : base() { }
+        public ZKNoNodeException() : base() { }
 
-        public ZkNoNodeException(string message) : base(message) { }
+        public ZKNoNodeException(string message) : base(message) { }
 
-        public ZkNoNodeException(KeeperException ex) : base(ex) { }
+        public ZKNoNodeException(KeeperException ex) : base(ex) { }
 
-        public ZkNoNodeException(string message, KeeperException ex) : base(message, ex) { }
+        public ZKNoNodeException(string message, KeeperException ex) : base(message, ex) { }
 
     }
 }

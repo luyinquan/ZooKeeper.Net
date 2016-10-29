@@ -7,7 +7,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZkClientNET.Util
+namespace ZKClientNET.Util
 {
     public class ConcurrentHashSet<T> : IEnumerable<T>, ISet<T>, ICollection<T>
     {

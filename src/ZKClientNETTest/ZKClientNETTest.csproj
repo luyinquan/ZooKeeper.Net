@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{FF399631-C03C-4982-AFD6-349B68997EDE}</ProjectGuid>
+    <ProjectGuid>{1DF4C59B-7AFB-4749-8AD8-CA9256F91536}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ZKClientNET</RootNamespace>
-    <AssemblyName>ZKClientNET</AssemblyName>
+    <RootNamespace>ZKClientNETTest</RootNamespace>
+    <AssemblyName>ZKClientNETTest</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -30,15 +30,28 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core, Version=3.3.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Castle.Core.3.3.3\lib\net45\Castle.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
       <HintPath>..\packages\log4net.1.2.10\lib\2.0\log4net.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Moq, Version=4.5.23.0, Culture=neutral, PublicKeyToken=69f491c39445e920, processorArchitecture=MSIL">
+      <HintPath>..\packages\Moq.4.5.23\lib\net45\Moq.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="nunit.framework, Version=3.5.0.0, Culture=neutral, PublicKeyToken=2638cd05610744eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.3.5.0\lib\net45\nunit.framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -52,51 +65,31 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Client\IDataUpdater.cs" />
-    <Compile Include="Leader\ILeaderSelector.cs" />
-    <Compile Include="Leader\IZKLeaderSelectorListener.cs" />
-    <Compile Include="Leader\ZKLeaderDelySelector.cs" />
-    <Compile Include="Leader\ZKLeaderSelector.cs" />
-    <Compile Include="Lock\ZKDistributedDelayLock.cs" />
-    <Compile Include="Lock\ZKDistributedLock.cs" />
-    <Compile Include="Lock\ZKHALock.cs" />
-    <Compile Include="Lock\ZKLock.cs" />
-    <Compile Include="Queue\ZKDistributedQueue.cs" />
-    <Compile Include="Connection\InMemoryConnection.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Listener\ContentWatcher.cs" />
-    <Compile Include="Exceptions\ZKBadVersionException.cs" />
-    <Compile Include="Exceptions\ZKException.cs" />
-    <Compile Include="Exceptions\ZKInterruptedException.cs" />
-    <Compile Include="Exceptions\ZKMarshallingError.cs" />
-    <Compile Include="Exceptions\ZKNodeExistsException.cs" />
-    <Compile Include="Exceptions\ZKNoNodeException.cs" />
-    <Compile Include="Exceptions\ZKTimeoutException.cs" />
-    <Compile Include="Scheduling\LimitedConcurrencyLevelTaskScheduler.cs" />
-    <Compile Include="Util\ExceptionUtil.cs" />
-    <Compile Include="Listener\Holder.cs" />
-    <Compile Include="Listener\ZKChildListener.cs" />
-    <Compile Include="Connection\IZKConnection.cs" />
-    <Compile Include="Listener\ZKDataListener.cs" />
-    <Compile Include="Listener\ZKStateListener.cs" />
-    <Compile Include="Serialize\BytesPushThroughSerializer.cs" />
-    <Compile Include="Serialize\IZKSerializer.cs" />
-    <Compile Include="Serialize\SerializableSerializer.cs" />
-    <Compile Include="Util\ConcurrentHashSet.cs" />
-    <Compile Include="Util\DateTimeExtensions.cs" />
-    <Compile Include="Util\ZKPathUtil.cs" />
-    <Compile Include="Client\ZKClient.cs" />
-    <Compile Include="Client\ZKClientBuilder.cs" />
-    <Compile Include="Connection\ZKConnection.cs" />
-    <Compile Include="Client\ZKTask.cs" />
+    <Compile Include="Test\MemoryZkClientTest.cs" />
+    <Compile Include="Test\QuickStart.cs" />
+    <Compile Include="Test\ContentWatcherTest.cs" />
+    <Compile Include="Test\ZKDistributedQueueTest.cs" />
+    <Compile Include="Test\InMemoryAuthTest.cs" />
+    <Compile Include="Util\TestUtil.cs" />
+    <Compile Include="Test\ZKAuthTest.cs" />
+    <Compile Include="Test\ZKClientSerializationTest.cs" />
+    <Compile Include="Test\ZKConnectionTest.cs" />
+    <Compile Include="Test\ZKStateChangeTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="log4net.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ZKClientNET\ZKClientNET.csproj">
+      <Project>{ff399631-c03c-4982-afd6-349b68997ede}</Project>
+      <Name>ZKClientNET</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

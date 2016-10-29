@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZkClientNET.Exceptions
+namespace ZKClientNET.Exceptions
 {
-    public class ZkTimeoutException : ZkException
+    public class ZKTimeoutException : ZKException
     {
-        public ZkTimeoutException() : base() { }
+        public ZKTimeoutException() : base() { }
 
-        public ZkTimeoutException(string message) : base(message) { }
+        public ZKTimeoutException(string message) : base(message) { }
 
-        public ZkTimeoutException(string message, Exception ex) : base(message, ex) { }
+        public ZKTimeoutException(string message, Exception ex) : base(message, ex) { }
   
     }
 }

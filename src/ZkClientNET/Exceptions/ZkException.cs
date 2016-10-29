@@ -5,21 +5,21 @@ using System.Text;
 using System.Threading.Tasks;
 using ZooKeeperNet;
 
-namespace ZkClientNET.Exceptions
+namespace ZKClientNET.Exceptions
 {
-    public class ZkException : Exception
+    public class ZKException : Exception
     {
         public Exception ex { set; get; }
 
-        public ZkException() : base() { }
+        public ZKException() : base() { }
 
-        public ZkException(string message) : base(message) { }
+        public ZKException(string message) : base(message) { }
 
-        public ZkException(Exception ex) : base(ex.Message, ex) { this.ex = ex; }
+        public ZKException(Exception ex) : base(ex.Message, ex) { this.ex = ex; }
 
-        public ZkException(string message, Exception ex) : base(message, ex) { }
+        public ZKException(string message, Exception ex) : base(message, ex) { }
 
-        public static ZkException Create(KeeperException e)
+        public static ZKException Create(KeeperException e)
         {
             switch (e.ErrorCode)
             {
@@ -28,17 +28,17 @@ namespace ZkClientNET.Exceptions
                 // case CONNECTIONLOSS:
                 // return new ConnectionLossException();
                 case KeeperException.Code.NONODE:
-                    return new ZkNoNodeException(e);
+                    return new ZKNoNodeException(e);
                 // case NOAUTH:
-                // return new ZkNoAuthException();
+                // return new ZKNoAuthException();
                 case KeeperException.Code.BADVERSION:
-                    return new ZkBadVersionException(e);
+                    return new ZKBadVersionException(e);
                 // case NOCHILDRENFOREPHEMERALS:
                 // return new NoChildrenForEphemeralsException();
                 case KeeperException.Code.NODEEXISTS:
-                    return new ZkNodeExistsException(e);
+                    return new ZKNodeExistsException(e);
                 // case INVALIDACL:
-                // return new ZkInvalidACLException();
+                // return new ZKInvalidACLException();
                 // case AUTHFAILED:
                 // return new AuthFailedException();
                 // case NOTEMPTY:
@@ -48,7 +48,7 @@ namespace ZkClientNET.Exceptions
                 // case INVALIDCALLBACK:
                 // return new InvalidCallbackException();
                 default:
-                    return new ZkException(e);
+                    return new ZKException(e);
             }
         }
     }
