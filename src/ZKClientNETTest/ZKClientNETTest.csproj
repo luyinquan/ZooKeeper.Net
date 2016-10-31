@@ -69,8 +69,12 @@
     <Compile Include="Test\MemoryZkClientTest.cs" />
     <Compile Include="Test\QuickStart.cs" />
     <Compile Include="Test\ContentWatcherTest.cs" />
+    <Compile Include="Test\ZKDistributedDelayLockTest.cs" />
+    <Compile Include="Test\ZKDistributedLockTest.cs" />
     <Compile Include="Test\ZKDistributedQueueTest.cs" />
     <Compile Include="Test\InMemoryAuthTest.cs" />
+    <Compile Include="Test\ZKLeaderDelaySelectorTest.cs" />
+    <Compile Include="Test\ZKLeaderSelectorTest.cs" />
     <Compile Include="Util\TestUtil.cs" />
     <Compile Include="Test\ZKAuthTest.cs" />
     <Compile Include="Test\ZKClientSerializationTest.cs" />

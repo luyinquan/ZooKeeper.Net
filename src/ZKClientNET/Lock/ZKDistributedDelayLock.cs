@@ -165,7 +165,7 @@ namespace ZKClientNET.Lock
                 {
                     semaphore = new Semaphore(1, 1);
                     client.Create(lockPath + "/lock", lockNodeData, CreateMode.Ephemeral);
-                    Interlocked.CompareExchange(ref hasLock, -0, 1);
+                    Interlocked.CompareExchange(ref hasLock, 0, 1);
                     return true;
                 }
                 catch (ZKNodeExistsException e)
@@ -205,7 +205,7 @@ namespace ZKClientNET.Lock
         {
             if (0 == Interlocked.Exchange(ref hasLock, 1))
             {
-                Interlocked.CompareExchange(ref hasLock, -0, 1);
+                Interlocked.CompareExchange(ref hasLock, 0, 1);
                 client.UnSubscribeDataChanges(lockPath + "/lock", nodeListener);
                 client.UnSubscribeStateChanges(stateListener);
                 cancellationTokenSource.Cancel();
