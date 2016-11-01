@@ -55,11 +55,11 @@ namespace ZKClientNET.Leader
             this.autoRequeue = autoRequue;
             this.leaderPath = leaderPath;
             this._lock = ZKDistributedLock.NewInstance(client, leaderPath);
-            this._lock.lockNodeData = id;        
+            this._lock.lockNodeData = id;
             this.listener = listener;
             SetFactory();
-            this.stateListener = new ZKStateListener();
-            stateListener.stateChangedEvent += (state) =>
+            this.stateListener = new ZKStateListener().StateChanged(
+             (state) =>
             {
                 if (state == KeeperState.SyncConnected)
                 {
@@ -69,7 +69,8 @@ namespace ZKClientNET.Leader
                         Requeue();
                     }
                 }
-            };
+            });
+
         }
 
         private void SetFactory()

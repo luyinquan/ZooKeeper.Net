@@ -54,7 +54,7 @@
   <ItemGroup>
     <Compile Include="Client\IDataUpdater.cs" />
     <Compile Include="Leader\ILeaderSelector.cs" />
-    <Compile Include="Leader\IZKLeaderSelectorListener.cs" />
+    <Compile Include="Leader\ZKLeaderSelectorListener.cs" />
     <Compile Include="Leader\ZKLeaderDelySelector.cs" />
     <Compile Include="Leader\ZKLeaderSelector.cs" />
     <Compile Include="Lock\ZKDistributedDelayLock.cs" />

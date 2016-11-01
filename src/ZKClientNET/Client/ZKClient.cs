@@ -1048,7 +1048,7 @@ namespace ZKClientNET.Client
                                 listener.HandleDataChange(path, data);
                             }
 
-                            listener.HandleDataChanges(path, data);
+                            listener.HandleDataCreatedOrChange(path, data);
                         }
                         catch (ZKNoNodeException e)
                         {

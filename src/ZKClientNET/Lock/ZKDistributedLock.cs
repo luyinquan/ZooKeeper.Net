@@ -30,15 +30,14 @@ namespace ZKClientNET.Lock
         {
             this.client = client;
             this.lockPath = lockPach;
-            Action<string, List<string>> action = (parentPath, currentChilds) =>
+            ZKChildListener childListener = new ZKChildListener().ChildChange(
+            (parentPath, currentChilds) =>
             {
                 if (Check(currentSeq, currentChilds))
                 {
                     semaphore.Release();
                 }
-            };
-            ZKChildListener childListener = new ZKChildListener();
-            childListener.childChangeEvent += action;
+            });
             this.countListener = childListener;
         }
 

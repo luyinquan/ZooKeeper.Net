@@ -9,11 +9,31 @@ namespace ZKClientNET.Listener
 {
     public class ZKStateListener
     {
-        public event Action<KeeperState> stateChangedEvent;
+        private event Action<KeeperState> stateChangedEvent;
 
-        public event Action newSessionEvent;
+        private event Action newSessionEvent;
 
-        public event Action<Exception> sessionEstablishmentErrorEvent;
+        private event Action<Exception> sessionEstablishmentErrorEvent;
+
+        public ZKStateListener StateChanged(Action<KeeperState> stateChanged)
+        {
+            stateChangedEvent += stateChanged;
+            return this;
+        }
+
+
+        public ZKStateListener NewSession(Action newSession)
+        {
+            newSessionEvent += newSession;
+            return this;
+        }
+
+        public ZKStateListener SessionEstablishmentError(Action<Exception> sessionEstablishmentError)
+        {
+            sessionEstablishmentError += sessionEstablishmentError;
+            return this;
+        }
+
 
         /// <summary>
         /// 状态改变的回调函数

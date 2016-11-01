@@ -47,8 +47,8 @@ namespace ZKClientNET.Lock
                 TaskContinuationOptions.None, 
                 new LimitedConcurrencyLevelTaskScheduler(1));
 
-            nodeListener = new ZKDataListener();
-            nodeListener.dataDeletedEvent += (path) =>
+            nodeListener = new ZKDataListener().DataDeleted(
+            (path) =>
             {
                 factory.StartNew(() =>
                 {
@@ -64,10 +64,9 @@ namespace ZKClientNET.Lock
                         }
                     }
                 }, factory.CancellationToken);
-            };
+            });
 
-            stateListener = new ZKStateListener();
-            stateListener.stateChangedEvent += (state) =>
+            stateListener = new ZKStateListener().StateChanged((state) =>
             {
                 if (state == KeeperState.SyncConnected)
                 {
@@ -102,7 +101,8 @@ namespace ZKClientNET.Lock
                         }
                     }, factory.CancellationToken);
                 }
-            };
+            });
+
 
         }
 

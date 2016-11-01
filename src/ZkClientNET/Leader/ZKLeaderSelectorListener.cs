@@ -9,7 +9,13 @@ namespace ZKClientNET.Leader
 {
     public class ZKLeaderSelectorListener
     {
-        public event Action<ZKClient, ILeaderSelector> takeLeadershipEvent;
+        private event Action<ZKClient, ILeaderSelector> takeLeadershipEvent;
+
+        public ZKLeaderSelectorListener TakeLeadership(Action<ZKClient, ILeaderSelector> takeLeadership)
+        {
+            takeLeadershipEvent += takeLeadership;
+            return this;
+        }
 
         public void TakeLeadership(ZKClient client, ILeaderSelector selector)
         {

@@ -8,11 +8,22 @@ namespace ZKClientNET.Listener
 {
 
     public class ZKChildListener
-    {       
-        public event Action<string, List<string>> childCountChangedEvent;
-       
-        public event Action<string, List<string>> childChangeEvent;
+    {
+        private event Action<string, List<string>> childCountChangedEvent;
 
+        private event Action<string, List<string>> childChangeEvent;
+
+        public ZKChildListener ChildCountChanged(Action<string, List<string>> childCountChanged)
+        {
+            childCountChangedEvent += childCountChanged;
+            return this;
+        }
+
+        public ZKChildListener ChildChange(Action<string, List<string>> childChange)
+        {
+            childChangeEvent += childChange;
+            return this;
+        }
 
         /// <summary>
         /// 子节点数量变化

@@ -157,15 +157,16 @@ namespace ZKClientNETTest.Test
             string path = "/a";
             Holder<string> holder = new Holder<string>();
 
-            ZKDataListener listener = new ZKDataListener();
-            listener.dataChangesEvent += (dataPath, data) =>
-            {
-                holder.value = Convert.ToString(data);
-            };
-            listener.dataDeletedEvent += (dataPath) =>
-            {
-                holder.value = null;
-            };
+            ZKDataListener listener = new ZKDataListener()
+                            .DataCreatedOrChange((dataPath, data) =>
+                            {
+                                holder.value = Convert.ToString(data);
+                            })
+                            .DataDeleted((dataPath) =>
+                            {
+                                holder.value = null;
+                            });
+           
             _zkClient.SubscribeDataChanges(path, listener);
             _zkClient.CreatePersistent(path, "aaa");
 
@@ -185,15 +186,16 @@ namespace ZKClientNETTest.Test
             int countChanged = 0;
             int countDeleted = 0;
 
-            ZKDataListener listener = new ZKDataListener();
-            listener.dataChangesEvent += (dataPath, data) =>
-            {
-                Interlocked.Increment(ref countChanged);
-            };
-            listener.dataDeletedEvent += (dataPath) =>
-            {
-                Interlocked.Decrement(ref countDeleted);
-            };
+            ZKDataListener listener = new ZKDataListener()
+                   .DataCreatedOrChange((dataPath, data) =>
+                   {
+                       Interlocked.Increment(ref countChanged);
+                   })
+                   .DataDeleted((dataPath) =>
+                    {
+                        Interlocked.Decrement(ref countDeleted);
+                    });
+
 
             _zkClient.SubscribeDataChanges(path, listener);
 
@@ -240,12 +242,13 @@ namespace ZKClientNETTest.Test
             string path = "/a";
             int count = 0;
             Holder<List<string>> children = new Holder<List<string>>();
-            ZKChildListener listener = new ZKChildListener();
-            listener.childChangeEvent += (parentPath, currentChilds) =>
+            ZKChildListener listener = new ZKChildListener().ChildChange(
+           (parentPath, currentChilds) =>
             {
                 Interlocked.Increment(ref count);
                 children.value = currentChilds;
-            };
+            });
+
             _zkClient.SubscribeChildChanges(path, listener);
 
             // ----

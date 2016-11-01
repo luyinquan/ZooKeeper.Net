@@ -31,16 +31,16 @@ namespace ZKClientNET.Lock
         {
             this.client = client;
             this.lockPath = lockPach;
-            countListener = new ZKChildListener();
-            countListener.childCountChangedEvent += (parentPath, currentChilds) =>
+            countListener = new ZKChildListener().ChildCountChanged(
+             (parentPath, currentChilds) =>
             {
                 if (Check(currentSeq, currentChilds))
                 {
                     semaphore.Release();
                 }
-            };
-            stateListener = new ZKStateListener();
-            stateListener.stateChangedEvent += (state) =>
+            });
+            stateListener = new ZKStateListener().StateChanged(
+            (state) =>
             {
                 if (state == KeeperState.SyncConnected)
                 {
@@ -53,9 +53,7 @@ namespace ZKClientNET.Lock
                         currentSeq = paths[paths.Length - 1];
                     }
                 }
-            };
-
-
+            });
         }
 
         public static ZKHALock NewInstance(ZKClient client, string lockPach)

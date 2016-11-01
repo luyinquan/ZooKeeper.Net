@@ -61,8 +61,8 @@ namespace ZKClientNET.Leader
             this.listener = listener;
             SetFactory();
 
-            stateListener = new ZKStateListener();
-            stateListener.stateChangedEvent += (state) =>
+            stateListener = new ZKStateListener().StateChanged(
+            (state) =>
             {
                 if (state == KeeperState.SyncConnected)
                 {
@@ -72,7 +72,7 @@ namespace ZKClientNET.Leader
                         Requeue();
                     }
                 }
-            };
+            });
 
         }
 

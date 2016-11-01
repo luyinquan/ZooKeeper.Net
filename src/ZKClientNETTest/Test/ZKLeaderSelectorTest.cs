@@ -58,14 +58,15 @@ namespace ZKClientNETTest.Test
                              .Servers(string.Format("{0}:{1}", TestUtil.ip, TestUtil.port))
                              .SessionTimeout(10000)
                              .Build();
-                    ZKLeaderSelectorListener listener = new ZKLeaderSelectorListener();
-                    listener.takeLeadershipEvent += (client, selector) =>
-                    {
-                        msgList.Add(name + " I am the leader");
-                        Console.WriteLine(name + ": I am the leader-" + selector.GetLeader());
-                        selector.Close();
-                        //latch1.countDown();
-                    };
+                    ZKLeaderSelectorListener listener = new ZKLeaderSelectorListener()
+                                .TakeLeadership((client, selector) =>
+                                {
+                                    msgList.Add(name + " I am the leader");
+                                    Console.WriteLine(name + ": I am the leader-" + selector.GetLeader());
+                                    selector.Close();
+                                    //latch1.countDown();
+                                });
+                  
 
                     ZKLeaderSelector _selector = new ZKLeaderSelector(name, 1, zkClient1, leaderPath, listener);
 
@@ -103,19 +104,20 @@ namespace ZKClientNETTest.Test
             List<string> msgList = new List<string>();
             _zkClient.CreateRecursive(leaderPath, null, CreateMode.Persistent);
 
-            ZKLeaderSelectorListener listener = new ZKLeaderSelectorListener();
-            listener.takeLeadershipEvent += (client, selector) =>
-            {
-                try
+            ZKLeaderSelectorListener listener = new ZKLeaderSelectorListener()
+                .TakeLeadership((client, selector) =>
                 {
-                    Thread.Sleep(1000);
-                }
-                catch (ThreadInterruptedException e)
-                {
-                }
-                msgList.Add("server1 I am the leader");
-                Console.WriteLine("server1: I am the leader-" + selector.GetLeader());
-            };
+                    try
+                    {
+                        Thread.Sleep(1000);
+                    }
+                    catch (ThreadInterruptedException e)
+                    {
+                    }
+                    msgList.Add("server1 I am the leader");
+                    Console.WriteLine("server1: I am the leader-" + selector.GetLeader());
+                });
+          
 
             ZKLeaderSelector selector1 = new ZKLeaderSelector("server1", 1, _zkClient, leaderPath, listener);
 

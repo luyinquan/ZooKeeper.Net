@@ -160,12 +160,12 @@ namespace ZKClientNETTest.Test
                              .Serializer(new SerializableSerializer())
                              .Build();
             Console.WriteLine("conneted ok!");
-            ZKChildListener childListener = new ZKChildListener();
-            childListener.childChangeEvent += (parentPath, currentChilds) =>
+            ZKChildListener childListener = new ZKChildListener().ChildChange((parentPath, currentChilds) =>
             {
                 Console.WriteLine(parentPath);
                 Console.WriteLine(string.Join(".", currentChilds));
-            };
+            });
+
             //"/testUserNode" 监听的节点，可以是现在存在的也可以是不存在的 
             zkClient.SubscribeChildChanges("/testUserNode3", childListener);
             Thread.Sleep(int.MaxValue);
@@ -185,15 +185,15 @@ namespace ZKClientNETTest.Test
                              .Serializer(new SerializableSerializer())
                              .Build();
             Console.WriteLine("conneted ok!");
-            ZKDataListener dataListener = new ZKDataListener();
-            dataListener.dataChangeEvent += (dataPath, data) =>
-            {
-                Console.WriteLine(dataPath + ":" + Convert.ToString(data));
-            };
-            dataListener.dataDeletedEvent += (dataPath) =>
-            {
-                Console.WriteLine(dataPath);
-            };
+            ZKDataListener dataListener = new ZKDataListener()
+                .DataCreatedOrChange((dataPath, data) =>
+                {
+                    Console.WriteLine(dataPath + ":" + Convert.ToString(data));
+                })
+               .DataDeleted((dataPath) =>
+                {
+                    Console.WriteLine(dataPath);
+                });
             zkClient.SubscribeDataChanges("/testUserNode", dataListener);
             Thread.Sleep(int.MaxValue);
             zkClient.Close();
