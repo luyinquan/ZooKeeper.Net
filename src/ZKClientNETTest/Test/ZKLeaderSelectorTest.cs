@@ -27,7 +27,7 @@ namespace ZKClientNETTest.Test
                              .Servers(string.Format("{0}:{1}", TestUtil.ip, TestUtil.port))
                              .SessionTimeout(10000)
                              .Build();
-            TestUtil.ReSetPathCreate(_zkClient, leaderPath);
+            TestUtil.ReSetPathUnCreate(_zkClient, leaderPath);
         }
 
         [OneTimeTearDown]

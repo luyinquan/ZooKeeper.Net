@@ -26,8 +26,8 @@ namespace ZKClientNET.Lock
         private static readonly ILog LOG = LogManager.GetLogger(typeof(ZKDistributedDelayLock));
         private CancellationTokenSource cancellationTokenSource;
         private TaskFactory factory;
-        private ZKDataListener nodeListener;
-        private ZKStateListener stateListener;
+        private IZKDataListener nodeListener;
+        private IZKStateListener stateListener;
         private ZKClient client;
         private string lockPath;
         private Semaphore semaphore;
@@ -205,7 +205,7 @@ namespace ZKClientNET.Lock
         {
             if (0 == Interlocked.Exchange(ref hasLock, 1))
             {
-                Interlocked.CompareExchange(ref hasLock, 0, 1);
+                Interlocked.CompareExchange(ref hasLock, 1, 0);
                 client.UnSubscribeDataChanges(lockPath + "/lock", nodeListener);
                 client.UnSubscribeStateChanges(stateListener);
                 cancellationTokenSource.Cancel();

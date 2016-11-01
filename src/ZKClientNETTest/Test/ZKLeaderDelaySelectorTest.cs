@@ -28,7 +28,7 @@ namespace ZKClientNETTest.Test
                              .Servers(string.Format("{0}:{1}", TestUtil.ip, TestUtil.port))
                              .SessionTimeout(10000)
                              .Build();
-            TestUtil.ReSetPathCreate(_zkClient, leaderPath);
+            TestUtil.ReSetPathUnCreate(_zkClient, leaderPath);
         }
 
         [OneTimeTearDown]
@@ -177,7 +177,7 @@ namespace ZKClientNETTest.Test
                     {
                         Thread.Sleep(1000);
                     }
-                    catch (ThreadInterruptedException e)
+                    catch (ThreadInterruptedException)
                     {
                     }
                     msgList.Add("server1 I am the leader");

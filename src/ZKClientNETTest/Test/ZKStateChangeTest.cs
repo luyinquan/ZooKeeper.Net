@@ -172,7 +172,7 @@ namespace ZKClientNETTest.Test
         }
     }
 
-    public class TestStateListener : ZKStateListener
+    public class TestStateListener : IZKStateListener
     {
         public int expiredEvents = 0;
         public int newSessionEvent = 0;

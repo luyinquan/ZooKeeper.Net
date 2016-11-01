@@ -20,8 +20,8 @@ namespace ZKClientNET.Lock
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(ZKHALock));
 
-        private ZKChildListener countListener;
-        private ZKStateListener stateListener;
+        private IZKChildListener countListener;
+        private IZKStateListener stateListener;
         private ZKClient client;
         private string lockPath;
         private string currentSeq;

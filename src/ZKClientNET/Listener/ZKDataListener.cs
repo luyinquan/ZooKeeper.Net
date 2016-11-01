@@ -2,7 +2,7 @@
 
 namespace ZKClientNET.Listener
 {
-    public class ZKDataListener
+    public class ZKDataListener : IZKDataListener
     {
         private event Action<string, object> dataCreatedOrChangeEvent;
 
@@ -56,7 +56,7 @@ namespace ZKClientNET.Listener
         {
             dataCreatedEvent(dataPath, data);
         }
-     
+
         /// <summary>
         /// 节点内容变化
         /// </summary>

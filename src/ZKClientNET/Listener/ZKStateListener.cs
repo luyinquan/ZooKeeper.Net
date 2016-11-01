@@ -7,7 +7,7 @@ using ZooKeeperNet;
 
 namespace ZKClientNET.Listener
 {
-    public class ZKStateListener
+    public class ZKStateListener : IZKStateListener
     {
         private event Action<KeeperState> stateChangedEvent;
 
@@ -20,7 +20,6 @@ namespace ZKClientNET.Listener
             stateChangedEvent += stateChanged;
             return this;
         }
-
 
         public ZKStateListener NewSession(Action newSession)
         {

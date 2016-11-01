@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace ZKClientNET.Listener
 {
 
-    public class ZKChildListener
+    public class ZKChildListener: IZKChildListener
     {
         private event Action<string, List<string>> childCountChangedEvent;
 

@@ -157,7 +157,7 @@ namespace ZKClientNETTest.Test
             string path = "/a";
             Holder<string> holder = new Holder<string>();
 
-            ZKDataListener listener = new ZKDataListener()
+            IZKDataListener listener = new ZKDataListener()
                             .DataCreatedOrChange((dataPath, data) =>
                             {
                                 holder.value = Convert.ToString(data);
@@ -186,7 +186,7 @@ namespace ZKClientNETTest.Test
             int countChanged = 0;
             int countDeleted = 0;
 
-            ZKDataListener listener = new ZKDataListener()
+            IZKDataListener listener = new ZKDataListener()
                    .DataCreatedOrChange((dataPath, data) =>
                    {
                        Interlocked.Increment(ref countChanged);
@@ -341,7 +341,7 @@ namespace ZKClientNETTest.Test
             _zkClient.SubscribeChildChanges("/", zkChildListener.Object);
             Assert.True(1 == _zkClient.NumberOfListeners());
 
-            var zkDataListener = new Mock<ZKClientNET.Listener.ZKDataListener>();
+            var zkDataListener = new Mock<ZKClientNET.Listener.IZKDataListener>();
             _zkClient.SubscribeDataChanges("/a", zkDataListener.Object);
             Assert.True(2 == _zkClient.NumberOfListeners());
 

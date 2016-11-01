@@ -24,7 +24,7 @@ namespace ZKClientNETTest.Test
         {
             LOG.Info("------------ BEFORE -------------");
             _zkClient = new ZKClient(string.Format("{0}:{1}", TestUtil.ip, TestUtil.port), new TimeSpan(0, 0, 0, 0, 5000));
-            TestUtil.ReSetPathCreate(_zkClient, lockPath);
+            TestUtil.ReSetPathUnCreate(_zkClient, lockPath);
         }
 
         [OneTimeTearDown]
@@ -54,7 +54,7 @@ namespace ZKClientNETTest.Test
                         Interlocked.Increment(ref integer);
                         msgList.Add("thread " + integer);
                         Console.WriteLine("Thread " + integer + " got lock........");
-                        Console.WriteLine(_lock.GetParticipantNodes());
+                        Console.WriteLine(string.Join(".", _lock.GetParticipantNodes()));
                         if (integer == 3)
                         {
                             Thread.Sleep(1000);

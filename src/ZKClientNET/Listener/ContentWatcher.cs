@@ -6,7 +6,7 @@ using ZKClientNET.Exceptions;
 
 namespace ZKClientNET.Listener
 {
-    public class ContentWatcher<T> : ZKDataListener
+    public class ContentWatcher<T> : IZKDataListener
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(ContentWatcher<T>));
         private object _contentLock = new object();
@@ -55,16 +55,6 @@ namespace ZKClientNET.Listener
             }        
         }
 
-        public void HandleDataChange(string dataPath, object data)
-        {
-            SetContent((T)data);
-        }
-
-        public void HandleDataDeleted(string dataPath)
-        {
-            throw new NotImplementedException();
-        }
-
         public T GetContent()
         {
             while (_content == null)
@@ -74,9 +64,21 @@ namespace ZKClientNET.Listener
             return _content.value;
         }
 
-        public void HandleDataCreated(string dataPath, object data)
+        public void HandleDataCreatedOrChange(string dataPath, object data)
         {
-            throw new NotImplementedException();
+            SetContent((T)data);
         }
+
+        public void HandleDataCreated(string dataPath, object data)
+        {          
+        }
+
+        public void HandleDataChange(string dataPath, object data)
+        {
+        }
+
+        public void HandleDataDeleted(string dataPath)
+        {
+        }       
     }
 }

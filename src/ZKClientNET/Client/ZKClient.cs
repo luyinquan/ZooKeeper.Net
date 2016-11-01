@@ -24,9 +24,9 @@ namespace ZKClientNET.Client
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(ZKClient));
                
-        private ConcurrentDictionary<string, ConcurrentHashSet<ZKChildListener>> _childListener = new ConcurrentDictionary<string, ConcurrentHashSet<ZKChildListener>>();
-        private ConcurrentDictionary<string, ConcurrentHashSet<ZKDataListener>> _dataListener = new ConcurrentDictionary<string, ConcurrentHashSet<ZKDataListener>>();
-        private ConcurrentHashSet<ZKStateListener> _stateListener = new ConcurrentHashSet<ZKStateListener>();
+        private ConcurrentDictionary<string, ConcurrentHashSet<IZKChildListener>> _childListener = new ConcurrentDictionary<string, ConcurrentHashSet<IZKChildListener>>();
+        private ConcurrentDictionary<string, ConcurrentHashSet<IZKDataListener>> _dataListener = new ConcurrentDictionary<string, ConcurrentHashSet<IZKDataListener>>();
+        private ConcurrentHashSet<IZKStateListener> _stateListener = new ConcurrentHashSet<IZKStateListener>();
 
         private object _zkEventLock = new object();
         private Thread _zookeeperEventThread;
@@ -129,14 +129,14 @@ namespace ZKClientNET.Client
             _zkSerializer = zkSerializer;
         }
 
-        public List<string> SubscribeChildChanges(string path, ZKChildListener listener)
+        public List<string> SubscribeChildChanges(string path, IZKChildListener listener)
         {
             //Monitor.Enter(_childListener);
-            ConcurrentHashSet<ZKChildListener> listeners;
+            ConcurrentHashSet<IZKChildListener> listeners;
             _childListener.TryGetValue(path, out listeners);
             if (listeners == null)
             {
-                listeners = new ConcurrentHashSet<ZKChildListener>();
+                listeners = new ConcurrentHashSet<IZKChildListener>();
                 _childListener.TryAdd(path, listeners);
             }
             listeners.Add(listener);
@@ -144,10 +144,10 @@ namespace ZKClientNET.Client
             return WatchForChilds(path);
         }
 
-        public void UnSubscribeChildChanges(string path, ZKChildListener childListener)
+        public void UnSubscribeChildChanges(string path, IZKChildListener childListener)
         {
             //Monitor.Enter(_childListener);
-            ConcurrentHashSet<ZKChildListener> listeners;
+            ConcurrentHashSet<IZKChildListener> listeners;
             _childListener.TryGetValue(path, out listeners);
             if (listeners != null)
             {
@@ -156,14 +156,14 @@ namespace ZKClientNET.Client
             //Monitor.Exit(_childListener);
         }
 
-        public void SubscribeDataChanges(string path, ZKDataListener listener)
+        public void SubscribeDataChanges(string path, IZKDataListener listener)
         {
-            ConcurrentHashSet<ZKDataListener> listeners;
+            ConcurrentHashSet<IZKDataListener> listeners;
             //Monitor.Enter(_dataListener);
             _dataListener.TryGetValue(path, out listeners);
             if (listeners == null)
             {
-                listeners = new ConcurrentHashSet<ZKDataListener>();
+                listeners = new ConcurrentHashSet<IZKDataListener>();
                 _dataListener.TryAdd(path, listeners);
             }
             listeners.Add(listener);
@@ -172,10 +172,10 @@ namespace ZKClientNET.Client
             LOG.Debug("Subscribed data changes for " + path);
         }
 
-        public void UnSubscribeDataChanges(string path, ZKDataListener dataListener)
+        public void UnSubscribeDataChanges(string path, IZKDataListener dataListener)
         {
             //Monitor.Enter(_dataListener);
-            ConcurrentHashSet<ZKDataListener> listeners;
+            ConcurrentHashSet<IZKDataListener> listeners;
             _dataListener.TryGetValue(path, out listeners);
             if (listeners != null)
             {
@@ -183,20 +183,20 @@ namespace ZKClientNET.Client
             }
             if (listeners == null || listeners.IsEmpty)
             {
-                ConcurrentHashSet<ZKDataListener> _listeners;
+                ConcurrentHashSet<IZKDataListener> _listeners;
                 _dataListener.TryRemove(path, out _listeners);
             }
             //Monitor.Exit(_dataListener);
         }
 
-        public void SubscribeStateChanges(ZKStateListener listener)
+        public void SubscribeStateChanges(IZKStateListener listener)
         {
             //Monitor.Enter(_stateListener);
             _stateListener.Add(listener);
             //Monitor.Exit(_stateListener);
         }
 
-        public void UnSubscribeStateChanges(ZKStateListener stateListener)
+        public void UnSubscribeStateChanges(IZKStateListener stateListener)
         {
             //Monitor.Enter(_stateListener);
             _stateListener.Remove(stateListener);
@@ -244,7 +244,7 @@ namespace ZKClientNET.Client
             {
                 Create(path, data, acl, createMode);
             }
-            catch (ZKNodeExistsException e)
+            catch (ZKNodeExistsException)
             {
                 LOG.Error(path + " not exists");
             }
@@ -433,7 +433,7 @@ namespace ZKClientNET.Client
             {
                 return GetChildren(path).Count;
             }
-            catch (ZKNoNodeException e)
+            catch (ZKNoNodeException)
             {
                 return 0;
             }
@@ -968,7 +968,7 @@ namespace ZKClientNET.Client
 
             if (@event.Type == EventType.NodeChildrenChanged || @event.Type == EventType.NodeCreated || @event.Type == EventType.NodeDeleted)
             {
-                ConcurrentHashSet<ZKChildListener> childListeners;
+                ConcurrentHashSet<IZKChildListener> childListeners;
                 _childListener.TryGetValue(path, out childListeners);
                 if (childListeners != null && !childListeners.IsEmpty())
                 {
@@ -978,7 +978,7 @@ namespace ZKClientNET.Client
 
             if (@event.Type == EventType.NodeDataChanged || @event.Type == EventType.NodeDeleted || @event.Type == EventType.NodeCreated)
             {
-                ConcurrentHashSet<ZKDataListener> listeners;
+                ConcurrentHashSet<IZKDataListener> listeners;
                 _dataListener.TryGetValue(path, out listeners);
                 if (listeners != null && !listeners.IsEmpty())
                 {
@@ -987,12 +987,12 @@ namespace ZKClientNET.Client
             }
         }
 
-        private void FireChildChangedEvents(string path, ConcurrentHashSet<ZKChildListener> childListeners, EventType eventType)
+        private void FireChildChangedEvents(string path, ConcurrentHashSet<IZKChildListener> childListeners, EventType eventType)
         {
             try
             {
                 // reinstall the watch
-                foreach (ZKChildListener listener in childListeners)
+                foreach (IZKChildListener listener in childListeners)
                 {
                     _eventTask.Send(new ZKTask.ZKEvent("Children of " + path + " changed sent to " + nameof(listener))
                     {
@@ -1026,9 +1026,9 @@ namespace ZKClientNET.Client
             }
         }
 
-        private void FireDataChangedEvents(string path, ConcurrentHashSet<ZKDataListener> listeners, EventType eventType)
+        private void FireDataChangedEvents(string path, ConcurrentHashSet<IZKDataListener> listeners, EventType eventType)
         {
-            foreach (ZKDataListener listener in listeners)
+            foreach (IZKDataListener listener in listeners)
             {
                 _eventTask.Send(new ZKTask.ZKEvent("Data of " + path + " changed sent to " + nameof(listener))
                 {
@@ -1085,7 +1085,7 @@ namespace ZKClientNET.Client
 
         private void FireNewSessionEvents()
         {
-            foreach (ZKStateListener stateListener in _stateListener)
+            foreach (IZKStateListener stateListener in _stateListener)
             {
                 _eventTask.Send(new ZKTask.ZKEvent("New session event sent to " + nameof(stateListener))
                 {
@@ -1099,7 +1099,7 @@ namespace ZKClientNET.Client
 
         private void FireStateChangedEvent(KeeperState state)
         {
-            foreach (ZKStateListener stateListener in _stateListener)
+            foreach (IZKStateListener stateListener in _stateListener)
             {
                 //_eventThread.Send(new ZKEventThread.ZKEvent("State changed to " + state + " sent to " + stateListener)
                 _eventTask.Send(new ZKTask.ZKEvent("State changed to " + state + " sent to " + nameof(stateListener))
@@ -1114,7 +1114,7 @@ namespace ZKClientNET.Client
 
         private void FireSessionEstablishmentError(Exception error)
         {
-            foreach (ZKStateListener stateListener in _stateListener)
+            foreach (IZKStateListener stateListener in _stateListener)
             {
                 _eventTask.Send(new ZKTask.ZKEvent("State establishment to " + error.Message + " sent to " + nameof(stateListener))
                 {
@@ -1128,13 +1128,13 @@ namespace ZKClientNET.Client
 
         private bool HasListeners(string path)
         {
-            ConcurrentHashSet<ZKDataListener> dataListeners = null;
+            ConcurrentHashSet<IZKDataListener> dataListeners = null;
             _dataListener.TryGetValue(path, out dataListeners);
             if (dataListeners != null && dataListeners.Count > 0)
             {
                 return true;
             }
-            ConcurrentHashSet<ZKChildListener> childListeners = null;
+            ConcurrentHashSet<IZKChildListener> childListeners = null;
             _childListener.TryGetValue(path, out childListeners);
             if (childListeners != null && childListeners.Count > 0)
             {
@@ -1146,11 +1146,11 @@ namespace ZKClientNET.Client
         public int NumberOfListeners()
         {
             int listeners = 0;
-            foreach (ConcurrentHashSet<ZKChildListener> childListeners in _childListener.Values)
+            foreach (ConcurrentHashSet<IZKChildListener> childListeners in _childListener.Values)
             {
                 listeners += childListeners.Count;
             }
-            foreach (ConcurrentHashSet<ZKDataListener> dataListeners in _dataListener.Values)
+            foreach (ConcurrentHashSet<IZKDataListener> dataListeners in _dataListener.Values)
             {
                 listeners += dataListeners.Count;
             }

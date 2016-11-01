@@ -185,7 +185,7 @@ namespace ZKClientNETTest.Test
                              .Serializer(new SerializableSerializer())
                              .Build();
             Console.WriteLine("conneted ok!");
-            ZKDataListener dataListener = new ZKDataListener()
+            IZKDataListener dataListener = new ZKDataListener()
                 .DataCreatedOrChange((dataPath, data) =>
                 {
                     Console.WriteLine(dataPath + ":" + Convert.ToString(data));
