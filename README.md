@@ -2,10 +2,8 @@
 A zookeeper client, that makes life a little easier. Implemented by .Net. Reference https://github.com/sgroschupf/zkclient https://github.com/yuluows/zkclient 
 
 ## 使用说明
-    ```
-    /// <summary>
-	/// 创建会话
-	/// </summary>
+    
+###创建会话
 	public void CreateSession()
 	{
 		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
@@ -18,9 +16,7 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
 		zkClient = null;
 	}
 
-	/// <summary>
-	/// 创建节点
-	/// </summary>
+###创建节点
 	public void CreateNode()
 	{
 		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
@@ -40,9 +36,7 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
 		zkClient = null;
 	}
 
-	/// <summary>
-	/// 获取节点中的数据
-	/// </summary>
+###获取节点中的数据
 	public void GetData()
 	{
 		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
@@ -61,9 +55,7 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
 		zkClient = null;
 	}
 
-	/// <summary>
-	/// 判断节点是否存在
-	/// </summary>
+###判断节点是否存在
 	public void Exists()
 	{
 		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
@@ -80,9 +72,7 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
 		zkClient = null;
 	}
 
-	/// <summary>
-	/// 删除节点
-	/// </summary>
+###删除节点
 	public void Delete()
 	{
 		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
@@ -104,9 +94,7 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
 		zkClient = null;
 	}
 
-	/// <summary>
-	/// 更新数据
-	/// </summary>
+###更新数据
 	public void WriteData()
 	{
 		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
@@ -127,9 +115,7 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
 		zkClient = null;
 	}
 
-	/// <summary>
-	/// 订阅节点的信息改变（创建节点，删除节点，添加子节点）
-	/// </summary>
+###订阅节点的信息改变（创建节点，删除节点，添加子节点）
 	public void SubscribeChildChanges()
 	{
 		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
@@ -186,10 +172,11 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
 
         public string Name { set; Get; }
     }
-     ```
+     
 	 
 ## 扩展功能
-    ###分布式锁
+
+###分布式锁
 
     ZKClient zkClient = ZKClientBuilder.NewZKClient()
                                 .Servers("localhost:2181")
