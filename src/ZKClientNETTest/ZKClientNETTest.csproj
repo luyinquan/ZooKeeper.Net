@@ -75,6 +75,7 @@
     <Compile Include="Test\InMemoryAuthTest.cs" />
     <Compile Include="Test\ZKLeaderDelaySelectorTest.cs" />
     <Compile Include="Test\ZKLeaderSelectorTest.cs" />
+    <Compile Include="Test\ZKPathUtilTest.cs" />
     <Compile Include="Util\TestUtil.cs" />
     <Compile Include="Test\ZKAuthTest.cs" />
     <Compile Include="Test\ZKClientSerializationTest.cs" />

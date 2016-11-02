@@ -7,7 +7,7 @@ using ZKClientNET.Client;
 
 namespace ZKClientNET.Leader
 {
-    public class ZKLeaderSelectorListener
+    public class ZKLeaderSelectorListener : IZKLeaderSelectorListener
     {
         private event Action<ZKClient, ILeaderSelector> takeLeadershipEvent;
 

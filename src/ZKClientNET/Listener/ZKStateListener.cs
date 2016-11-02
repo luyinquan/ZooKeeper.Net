@@ -29,7 +29,7 @@ namespace ZKClientNET.Listener
 
         public ZKStateListener SessionEstablishmentError(Action<Exception> sessionEstablishmentError)
         {
-            sessionEstablishmentError += sessionEstablishmentError;
+            sessionEstablishmentErrorEvent += sessionEstablishmentError;
             return this;
         }
 

@@ -42,8 +42,8 @@ namespace ZKClientNETTest.Test
         public void TestZKLeaderDelaySeletor()
         {
             List<string> msgList = new List<string>();
-            //CountDownLatch latch = new CountDownLatch(5);
-            //CountDownLatch latch1 = new CountDownLatch(5);
+            CountdownEvent count = new CountdownEvent(5);
+            CountdownEvent count1 = new CountdownEvent(5);
             _zkClient.CreateRecursive(leaderPath, null, CreateMode.Persistent);
             int index = 0;
 
@@ -62,7 +62,7 @@ namespace ZKClientNETTest.Test
                                                     {
                                                         msgList.Add(name + " I am the leader");
                                                         Console.WriteLine(name + ": I am the leader-" + selector.GetLeader());
-                                                        Console.WriteLine(selector.GetParticipantNodes());
+                                                        Console.WriteLine(string.Join(".", selector.GetParticipantNodes()));
                                                         try
                                                         {
                                                             Thread.Sleep(100);
@@ -71,34 +71,32 @@ namespace ZKClientNETTest.Test
                                                         {
                                                         }
                                                         selector.Close();
-                                                        //latch1.countDown();
+                                                        count1.Signal();
                                                     });
                    
 
-                    ZKLeaderDelySelector selector1 = new ZKLeaderDelySelector(name, 1, 3000, zkClient1, leaderPath, listener);
+                    ZKLeaderDelySelector selector1 = new ZKLeaderDelySelector(name, true, 3000, zkClient1, leaderPath, listener);
 
-                    //try
-                    //{
-                    //    Console.WriteLine(name + ":waiting");
-                    //    latch.await();
-                    //}
-                    //catch (InterruptedException e1)
-                    //{
-                    //    e1.printStackTrace();
-                    //}
+                    try
+                    {
+                        count.Wait();
+                    }
+                    catch (ThreadInterruptedException e1)
+                    {
+                    }
                     selector1.Start();
 
-                    //try
-                    //{
-                    //    latch1.await();
-                    //}
-                    //catch (ThreadInterruptedException e)
-                    //{                      
-                    //}
+                    try
+                    {
+                        count1.Wait();
+                    }
+                    catch (ThreadInterruptedException e)
+                    {
+                    }
 
                 });
                 task.Start();
-                //latch.countDown();
+                count.Signal();
                 Interlocked.Increment(ref index);
             }
 
@@ -106,118 +104,5 @@ namespace ZKClientNETTest.Test
             Assert.True(size == 5);
         }
 
-        [Test]
-        public void TestZKLeaderDelaySeletor1()
-        {
-            List<string> msgList = new List<string>();
-            _zkClient.CreateRecursive(leaderPath, null, CreateMode.Persistent);
-
-            ZKLeaderSelectorListener listener1 = new ZKLeaderSelectorListener()
-                    .TakeLeadership((client, selector) =>
-                    {
-                        msgList.Add("server1 I am the leader");
-                        try
-                        {
-                            Thread.Sleep(1000);
-                        }
-                        catch (ThreadInterruptedException e)
-                        {
-                        }
-
-                        Console.WriteLine("server1: I am the leader-" + selector.GetLeader());
-                        // client.reconnect();
-                    });
-        
-
-            ZKLeaderDelySelector selector1 = new ZKLeaderDelySelector("server1", 1, 3000, _zkClient, leaderPath, listener1);
-
-            Task task = new Task(() =>
-            {
-                ZKClient zkClient1 = ZKClientBuilder.NewZKClient()
-                           .Servers(string.Format("{0}:{1}", TestUtil.ip, TestUtil.port))
-                           .SessionTimeout(10000)
-                           .Build();
-
-                ZKLeaderSelectorListener listener2 = new ZKLeaderSelectorListener()
-                  .TakeLeadership((client, selector) =>
-                  {
-                      msgList.Add("server2 I am the leader");
-                      try
-                      {
-                          Thread.Sleep(1000);
-                      }
-                      catch (ThreadInterruptedException e)
-                      {
-                      }
-
-                      Console.WriteLine("server2: I am the leader-" + selector.GetLeader());
-                      selector.Close();
-                  });
-              
-                ZKLeaderDelySelector selector2 = new ZKLeaderDelySelector("server2", 1, 3000, zkClient1, leaderPath, listener2);
-                selector2.Start();
-            });
-            selector1.Start();
-            task.Start();
-
-            int size = TestUtil.WaitUntil(1, () => { return msgList.Count; }, new TimeSpan(0, 0, 100));
-            Assert.True(size == 1);
-        }
-
-        [Test]
-        public void TestZKLeaderDelaySeletor2()
-        {
-            List<string> msgList = new List<string>();
-            _zkClient.CreateRecursive(leaderPath, null, CreateMode.Persistent);
-
-            ZKLeaderSelectorListener listener1 = new ZKLeaderSelectorListener()
-                .TakeLeadership((client, selector) =>
-                {
-                    try
-                    {
-                        Thread.Sleep(1000);
-                    }
-                    catch (ThreadInterruptedException)
-                    {
-                    }
-                    msgList.Add("server1 I am the leader");
-                    Console.WriteLine("server1: I am the leader-" + selector.GetLeader());
-                    // client.reconnect();
-                });
-          
-
-            ZKLeaderDelySelector selector1 = new ZKLeaderDelySelector("server1", 1, 1, _zkClient, leaderPath, listener1);
-
-            Task task = new Task(() =>
-            {
-                ZKClient zkClient1 = ZKClientBuilder.NewZKClient()
-                           .Servers(string.Format("{0}:{1}", TestUtil.ip, TestUtil.port))
-                           .SessionTimeout(10000)
-                           .Build();
-
-                ZKLeaderSelectorListener listener2 = new ZKLeaderSelectorListener()
-                  .TakeLeadership((client, selector) =>
-                  {
-                      try
-                      {
-                          Thread.Sleep(1000);
-                      }
-                      catch (ThreadInterruptedException e)
-                      {
-                      }
-                      msgList.Add("server2 I am the leader");
-                      Console.WriteLine("server2: I am the leader-" + selector.GetLeader());
-                      selector.Close();
-                  });
-
-                ZKLeaderDelySelector selector2 = new ZKLeaderDelySelector("server2", 1, 1, zkClient1, leaderPath, listener2);
-                selector2.Start();
-            });
-            selector1.Start();
-            task.Start();
-
-            int size = TestUtil.WaitUntil(3, () => { return msgList.Count; }, new TimeSpan(0, 0, 100));
-            Assert.True(size == 3);
-        }
     }
 }

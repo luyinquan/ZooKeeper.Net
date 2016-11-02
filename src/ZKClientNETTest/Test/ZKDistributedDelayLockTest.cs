@@ -18,6 +18,7 @@ namespace ZKClientNETTest.Test
         protected readonly ILog LOG = LogManager.GetLogger(typeof(ZKDistributedDelayLockTest));
         private ZKClient _zkClient;
         private string lockPath = "/zk/delylock1";
+        private AutoResetEvent autoReset = new AutoResetEvent(false);
 
         [OneTimeSetUp]
         public virtual void SetUp()
@@ -40,37 +41,34 @@ namespace ZKClientNETTest.Test
             _zkClient.CreateRecursive(lockPath, null, CreateMode.Persistent);
             int index = 0;
             List<string> msgList = new List<string>();
-            List<Task> tasks = new List<Task>();
             for (int i = 0; i < 5; i++)
             {
-                tasks.Add(new Task(() =>
-                 {
-                     ZKClient zkClient1 = ZKClientBuilder.NewZKClient()
-                               .Servers(string.Format("{0}:{1}", TestUtil.ip, TestUtil.port))
-                               .SessionTimeout(10000)
-                               .Build();
-                     ZKDistributedDelayLock _lock = ZKDistributedDelayLock.NewInstance(zkClient1, lockPath);
-                     _lock.Lock();
-                     Console.WriteLine(Thread.CurrentThread.Name + ":lock....");
-                     msgList.Add(Thread.CurrentThread.Name + ":unlock");
-                     try
-                     {
-                         Thread.Sleep(1000);
-                     }
-                     catch (ThreadInterruptedException e)
-                     {
-                     }
-                     Console.WriteLine(Thread.CurrentThread.Name + ":unlock....");
-                     _lock.UnLock();
-                 }));
+                Task.Factory.StartNew(() =>
+                {
+                    ZKClient zkClient1 = ZKClientBuilder.NewZKClient()
+                              .Servers(string.Format("{0}:{1}", TestUtil.ip, TestUtil.port))
+                              .SessionTimeout(10000)
+                              .Build();
+                    ZKDistributedDelayLock _lock = ZKDistributedDelayLock.NewInstance(zkClient1, lockPath);
+                    autoReset.WaitOne();
+
+                    _lock.Lock();
+                    Console.WriteLine(Thread.CurrentThread.Name + ":lock....");
+                    msgList.Add(Thread.CurrentThread.Name + ":unlock");
+                    try
+                    {
+                        Thread.Sleep(1000);
+                    }
+                    catch (ThreadInterruptedException e)
+                    {
+                    }
+                    Console.WriteLine(Thread.CurrentThread.Name + ":unlock....");
+                    _lock.UnLock();
+                });
                 Interlocked.Increment(ref index);
             }
 
-            tasks.ForEach(task =>
-            {
-                task.Start();
-            });
-
+            autoReset.Set();
 
             int size = TestUtil.WaitUntil(5, () => { return msgList.Count; }, new TimeSpan(0, 0, 200));
             Assert.True(size == 5);

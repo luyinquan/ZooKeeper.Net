@@ -27,6 +27,8 @@ namespace ZKClientNET.Client
         private ConcurrentDictionary<string, ConcurrentHashSet<IZKChildListener>> _childListener = new ConcurrentDictionary<string, ConcurrentHashSet<IZKChildListener>>();
         private ConcurrentDictionary<string, ConcurrentHashSet<IZKDataListener>> _dataListener = new ConcurrentDictionary<string, ConcurrentHashSet<IZKDataListener>>();
         private ConcurrentHashSet<IZKStateListener> _stateListener = new ConcurrentHashSet<IZKStateListener>();
+        //保存Ephemeral类型的节点，用于在断开重连，以及会话失效后的自动创建节点
+        private ConcurrentDictionary<string, ZKNode> ephemeralNodeMap = new ConcurrentDictionary<string, ZKNode>();
 
         private object _zkEventLock = new object();
         private Thread _zookeeperEventThread;
@@ -128,6 +130,7 @@ namespace ZKClientNET.Client
         {
             _zkSerializer = zkSerializer;
         }
+    
 
         public List<string> SubscribeChildChanges(string path, IZKChildListener listener)
         {
@@ -367,11 +370,33 @@ namespace ZKClientNET.Client
         public void CreateEphemeral(string path)
         {
             Create(path, null, CreateMode.Ephemeral);
+            ephemeralNodeMap.TryAdd(path, new ZKNode(path, null, CreateMode.Ephemeral));
         }
 
         public void CreateEphemeral(string path, List<ACL> acl)
         {
             Create(path, null, acl, CreateMode.Ephemeral);
+            ephemeralNodeMap.TryAdd(path, new ZKNode(path, null, CreateMode.Ephemeral));
+        }
+
+        public void CreateEphemeral(string path, object data)
+        {
+            Create(path, data, CreateMode.Ephemeral);
+            ephemeralNodeMap.TryAdd(path, new ZKNode(path, data, CreateMode.Ephemeral));
+        }
+
+        public string CreateEphemeralSequential(string path, object data)
+        {
+            string retPath = Create(path, data, CreateMode.EphemeralSequential);
+            ephemeralNodeMap.TryAdd(path, new ZKNode(path, data, CreateMode.EphemeralSequential));
+            return retPath;
+        }
+
+        public string CreateEphemeralSequential(string path, object data, List<ACL> acl)
+        {
+            string retPath = Create(path, data, acl, CreateMode.EphemeralSequential);
+            ephemeralNodeMap.TryAdd(path, new ZKNode(path, data, CreateMode.EphemeralSequential));
+            return retPath;
         }
 
         public string Create(string path, object data, CreateMode mode)
@@ -397,21 +422,6 @@ namespace ZKClientNET.Client
                 return _connection.Create(path, bytes, acl, mode);
             });
 
-        }
-
-        public void CreateEphemeral(string path, object data)
-        {
-            Create(path, data, CreateMode.Ephemeral);
-        }
-
-        public string CreateEphemeralSequential(string path, object data)
-        {
-            return Create(path, data, CreateMode.EphemeralSequential);
-        }
-
-        public string CreateEphemeralSequential(string path, object data, List<ACL> acl)
-        {
-            return Create(path, data, acl, CreateMode.EphemeralSequential);
         }
 
         public List<string> GetChildren(string path)
@@ -638,7 +648,7 @@ namespace ZKClientNET.Client
            });
         }
 
-        private void Connect(TimeSpan connectionTimeout, IWatcher watcher)
+        public void Connect(TimeSpan connectionTimeout, IWatcher watcher)
         {
             bool started = false;
             lock (_zkEventLock)
@@ -667,6 +677,43 @@ namespace ZKClientNET.Client
                         Close();
                     }
                 }
+            }
+        }
+
+        public void ReConnect(bool recreate)
+        {
+            lock (_zkEventLock)
+            {
+                try
+                {
+                    _connection.Close();
+                    _connection.Connect(this);
+                    RecreateEphemeraleNode(recreate);
+                }
+                catch (ThreadInterruptedException e)
+                {
+                    throw new ZKInterruptedException(e);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 重连后重新创建临时节点
+        /// </summary>
+        /// <param name="recreate"></param>
+        public void RecreateEphemeraleNode(bool recreate)
+        {
+            if (recreate)
+            {
+                foreach (var path in ephemeralNodeMap.Keys)
+                {
+                    var node = ephemeralNodeMap[path];
+                    Create(path, node.data, node.createMode);
+                }
+            }
+            else
+            {
+                ephemeralNodeMap.Clear();
             }
         }
 
@@ -702,8 +749,6 @@ namespace ZKClientNET.Client
                 try
                 {
                     _shutdownTriggered = true;
-                    //_eventThread.Interrupt();
-                    //_eventThread.Join(2000);
                     _eventTask.Cancel();
                     _eventTask.Wait(2000);
                     _connection.Close();
@@ -717,21 +762,6 @@ namespace ZKClientNET.Client
             LOG.Debug("Closing ZKClient...done");
         }
 
-        private void ReConnect()
-        {
-            lock (_zkEventLock)
-            {
-                try
-                {
-                    _connection.Close();
-                    _connection.Connect(this);
-                }
-                catch (ThreadInterruptedException e)
-                {
-                    throw new ZKInterruptedException(e);
-                }
-            }
-        }
 
         public T RetryUntilConnected<T>(Func<T> callable)
         {
@@ -873,6 +903,7 @@ namespace ZKClientNET.Client
             _currentState = state;
         }
 
+        [MethodImpl(MethodImplOptions.Synchronized)]
         public KeeperState GetCurrentState()
         {
             return _currentState;
@@ -953,12 +984,20 @@ namespace ZKClientNET.Client
             foreach (string _key in _childListener.Keys)
             {
                 string key = _key;
-                FireChildChangedEvents(key, _childListener[key], eventType);
+                ConcurrentHashSet<IZKChildListener> childListenes;
+                if (_childListener.TryGetValue(key, out childListenes))
+                {
+                    FireChildChangedEvents(key, childListenes, eventType);
+                }
             }
             foreach (string _key in _dataListener.Keys)
             {
                 string key = _key;
-                FireChildChangedEvents(key, _childListener[key], eventType);
+                ConcurrentHashSet<IZKDataListener> dataListeners;
+                if (_dataListener.TryGetValue(key, out dataListeners))
+                {
+                    FireDataChangedEvents(key, dataListeners, eventType);
+                }
             }
         }
 
@@ -1072,7 +1111,7 @@ namespace ZKClientNET.Client
             {
                 try
                 {
-                    ReConnect();
+                    ReConnect(true);
                     FireNewSessionEvents();
                 }
                 catch (Exception e)

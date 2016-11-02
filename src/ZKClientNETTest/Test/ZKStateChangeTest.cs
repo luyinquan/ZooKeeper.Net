@@ -170,6 +170,11 @@ namespace ZKClientNETTest.Test
         {
             throw new NotImplementedException();
         }
+
+        public void ReConnect(IWatcher watcher)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class TestStateListener : IZKStateListener

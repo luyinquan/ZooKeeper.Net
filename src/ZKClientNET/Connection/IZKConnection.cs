@@ -12,6 +12,8 @@ namespace ZKClientNET.Connection
     {
         void Connect(IWatcher watcher);
 
+        void ReConnect(IWatcher watcher);
+
         void Close();
 
         string Create(string path, byte[] data, CreateMode mode);

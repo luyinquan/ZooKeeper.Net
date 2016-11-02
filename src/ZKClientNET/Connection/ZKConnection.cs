@@ -54,6 +54,15 @@ namespace ZKClientNET.Connection
             }
         }
 
+        public void ReConnect(IWatcher watcher)
+        {
+            lock (_zookeeperLock)
+            {
+                Close();
+                Connect(watcher);
+            }
+        }
+
         public void Close()
         {
             lock (_zookeeperLock)
@@ -161,5 +170,6 @@ namespace ZKClientNET.Connection
         {
             return _servers;
         }
+    
     }
 }

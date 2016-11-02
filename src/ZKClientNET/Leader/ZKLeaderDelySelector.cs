@@ -49,12 +49,12 @@ namespace ZKClientNET.Leader
         /// <param name="client">ZKClient</param>
         /// <param name="leaderPath">选举的路径</param>
         /// <param name="listener">成为Leader后执行的的监听器</param>
-        public ZKLeaderDelySelector(string id, int autoRequue, int delayTimeMillis, ZKClient client, string leaderPath, ZKLeaderSelectorListener listener)
+        public ZKLeaderDelySelector(string id, bool autoRequue, int delayTimeMillis, ZKClient client, string leaderPath, ZKLeaderSelectorListener listener)
         {
             this.delayTimeMillis = delayTimeMillis;
             this.id = id;
             this.client = client;
-            this.autoRequeue = autoRequue;
+            this.autoRequeue = autoRequue ? 1 : 0;
             this.leaderPath = leaderPath;
             this._lock = ZKDistributedDelayLock.NewInstance(client, leaderPath);
             this._lock.SetLockNodeData(this.id);
@@ -91,7 +91,7 @@ namespace ZKClientNET.Leader
         /// </summary>
         public void Start()
         {
-            if ((int)State.LATENT != Interlocked.CompareExchange(ref state, (int)State.LATENT, (int)State.STARTED))
+            if ((int)State.LATENT != Interlocked.CompareExchange(ref state, (int)State.STARTED, (int)State.LATENT))
             {
                 throw new ZKException("Cannot be started more than once");
             }
@@ -110,7 +110,7 @@ namespace ZKClientNET.Leader
                 throw new ZKException("close() has already been called");
             }
 
-            Interlocked.Exchange(ref isInterrupted, 0);
+            Interlocked.CompareExchange(ref isInterrupted, 0, 1);
             cancellationTokenSource.Cancel();
             SetFactory();
 
@@ -171,13 +171,13 @@ namespace ZKClientNET.Leader
         {
             cancellationTokenSource.Cancel();
             SetFactory();
-            Interlocked.CompareExchange(ref isInterrupted, 0, 1);
+            Interlocked.CompareExchange(ref isInterrupted, 1, 0);
         }
 
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void Close()
         {
-            if ((int)State.STARTED != Interlocked.CompareExchange(ref state, (int)State.STARTED, (int)State.CLOSED))
+            if ((int)State.STARTED != Interlocked.CompareExchange(ref state, (int)State.CLOSED, (int)State.STARTED))
             {
                 throw new ZKException("Already closed or has not been started");
             }

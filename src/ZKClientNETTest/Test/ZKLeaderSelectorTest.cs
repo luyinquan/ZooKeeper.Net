@@ -44,56 +44,56 @@ namespace ZKClientNETTest.Test
         public void TestZKLeaderSeletor()
         {
             List<string> msgList = new List<string>();
-            //CountDownLatch latch = new CountDownLatch(20);
-            //CountDownLatch latch1 = new CountDownLatch(20);
+            CountdownEvent count = new CountdownEvent(20);
+            CountdownEvent count1 = new CountdownEvent(20);
             _zkClient.CreateRecursive(leaderPath, null, CreateMode.Persistent);
             int index = 0;
-
             for (int i = 0; i < 20; i++)
             {
                 string name = "server:" + index;
-                Task.Factory.StartNew(() =>
-                {
-                    ZKClient zkClient1 = ZKClientBuilder.NewZKClient()
-                             .Servers(string.Format("{0}:{1}", TestUtil.ip, TestUtil.port))
-                             .SessionTimeout(10000)
-                             .Build();
-                    ZKLeaderSelectorListener listener = new ZKLeaderSelectorListener()
-                                .TakeLeadership((client, selector) =>
-                                {
-                                    msgList.Add(name + " I am the leader");
-                                    Console.WriteLine(name + ": I am the leader-" + selector.GetLeader());
-                                    selector.Close();
-                                    //latch1.countDown();
-                                });
-                  
+                Task task = new Task(() =>
+                   {
+                       ZKClient zkClient1 = ZKClientBuilder.NewZKClient()
+                                .Servers(string.Format("{0}:{1}", TestUtil.ip, TestUtil.port))
+                                .SessionTimeout(10000)
+                                .Build();
+                       ZKLeaderSelectorListener listener = new ZKLeaderSelectorListener()
+                                   .TakeLeadership((client, selector) =>
+                                   {
+                                       msgList.Add(name + " I am the leader");
+                                       Console.WriteLine(name + ": I am the leader-" + selector.GetLeader());
+                                       selector.Close();
+                                       count1.Signal();
+                                   });
 
-                    ZKLeaderSelector _selector = new ZKLeaderSelector(name, 1, zkClient1, leaderPath, listener);
 
-                    //try
-                    //{
-                    //    Console.WriteLine(name + ":waiting");
-                    //    latch.await();
-                    //}
-                    //catch (InterruptedException e1)
-                    //{
-                    //    e1.printStackTrace();
-                    //}
-                    _selector.Start();
+                       ZKLeaderSelector _selector = new ZKLeaderSelector(name, true, zkClient1, leaderPath, listener);
 
-                    //try
-                    //{
-                    //    latch1.await();
-                    //}
-                    //catch (ThreadInterruptedException e)
-                    //{                      
-                    //}
+                       try
+                       {
+                           Console.WriteLine(name + ":waiting");
+                           count.Wait();
+                       }
+                       catch (ThreadInterruptedException e1)
+                       {
+                       }
+                       _selector.Start();
 
-                });
-                //latch.countDown();
+                       try
+                       {
+                           count1.Wait();
+                       }
+                       catch (ThreadInterruptedException e)
+                       {
+                       }
+
+                   });
+                task.Start();
+                count.Signal();
                 Interlocked.Increment(ref index);
             }
-            int size = TestUtil.WaitUntil(20, () => { return msgList.Count; }, new TimeSpan(0, 0, 200));
+
+            int size = TestUtil.WaitUntil(20, () => { return msgList.Count; }, new TimeSpan(0, 0, 100));
             Assert.True(size == 20);
 
         }
@@ -117,26 +117,41 @@ namespace ZKClientNETTest.Test
                     msgList.Add("server1 I am the leader");
                     Console.WriteLine("server1: I am the leader-" + selector.GetLeader());
                 });
-          
 
-            ZKLeaderSelector selector1 = new ZKLeaderSelector("server1", 1, _zkClient, leaderPath, listener);
 
-            Task task=new Task( () =>
-            {
-                ZKClient zkClient1 = ZKClientBuilder.NewZKClient()
-                           .Servers(string.Format("{0}:{1}", TestUtil.ip, TestUtil.port))
-                           .SessionTimeout(10000)
-                           .Build();
-                ZKLeaderSelector selector2 = new ZKLeaderSelector("server2", 1, zkClient1, leaderPath, listener);
-                selector2.Start();
-            });
+            ZKLeaderSelector selector1 = new ZKLeaderSelector("server1", true, _zkClient, leaderPath, listener);
+
+            Task task = new Task(() =>
+             {
+                 ZKClient zkClient1 = ZKClientBuilder.NewZKClient()
+                            .Servers(string.Format("{0}:{1}", TestUtil.ip, TestUtil.port))
+                            .SessionTimeout(10000)
+                            .Build();
+                 ZKLeaderSelectorListener listener2 = new ZKLeaderSelectorListener()
+                .TakeLeadership((client, selector) =>
+                {
+                    try
+                    {
+                        Thread.Sleep(1000);
+                    }
+                    catch (ThreadInterruptedException e)
+                    {
+                    }
+                    msgList.Add("server2 I am the leader");
+                    Console.WriteLine("server2: I am the leader-" + selector.GetLeader());
+                    selector.Close();
+                });
+                 ZKLeaderSelector selector2 = new ZKLeaderSelector("server2", true, zkClient1, leaderPath, listener2);
+                 selector2.Start();
+             });
+
             selector1.Start();
             task.Start();
             Thread.Sleep(1000);
-            // _zkClient.Reconnect();
 
-            int size = TestUtil.WaitUntil(3, () => { return msgList.Count; }, new TimeSpan(0, 0, 200));
-            Assert.True(size == 3);
+
+            int size = TestUtil.WaitUntil(2, () => { return msgList.Count; }, new TimeSpan(0, 0, 100));
+            Assert.True(size == 2);
         }
 
  

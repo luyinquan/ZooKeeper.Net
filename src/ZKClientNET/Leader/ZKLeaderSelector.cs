@@ -26,11 +26,10 @@ namespace ZKClientNET.Leader
         private string leaderPath;
         private CancellationTokenSource cancellationTokenSource;
         private TaskFactory factory;
-        private ZKLeaderSelectorListener listener;
-        private ZKStateListener stateListener;
+        private IZKLeaderSelectorListener listener;
+        private IZKStateListener stateListener;
         private int isInterrupted = 0;
         private int autoRequeue = 0;
-        private Task<object> ourTask = null;
         private int state = (int)State.LATENT;
 
         private enum State
@@ -48,11 +47,11 @@ namespace ZKClientNET.Leader
         /// <param name="client"> ZKClient</param>
         /// <param name="leaderPath"> 选举的路径</param>
         /// <param name="listener"> 成为Leader后执行的的监听器</param>
-        public ZKLeaderSelector(string id, int autoRequue, ZKClient client, string leaderPath, ZKLeaderSelectorListener listener)
+        public ZKLeaderSelector(string id, bool autoRequue, ZKClient client, string leaderPath, IZKLeaderSelectorListener listener)
         {
             this.id = id;
             this.client = client;
-            this.autoRequeue = autoRequue;
+            this.autoRequeue = autoRequue ? 1 : 0;
             this.leaderPath = leaderPath;
             this._lock = ZKDistributedLock.NewInstance(client, leaderPath);
             this._lock.lockNodeData = id;
@@ -82,19 +81,19 @@ namespace ZKClientNET.Leader
                TaskContinuationOptions.None,
                new LimitedConcurrencyLevelTaskScheduler(1));
         }
-          
+
 
         /// <summary>
         /// 启动参与选举Leader
         /// </summary>
         public void Start()
         {
-            if ((int)State.LATENT != Interlocked.CompareExchange(ref state, (int)State.LATENT, (int)State.STARTED))
+            if ((int)State.LATENT != Interlocked.CompareExchange(ref state, (int)State.STARTED, (int)State.LATENT))
             {
                 throw new ZKException("Cannot be started more than once");
             }
             client.SubscribeStateChanges(stateListener);
-           Requeue();
+            Requeue();
         }
 
         /// <summary>
@@ -108,7 +107,7 @@ namespace ZKClientNET.Leader
                 throw new ZKException("close() has already been called");
             }
 
-            Interlocked.Exchange(ref isInterrupted, 0);
+            Interlocked.CompareExchange(ref isInterrupted, 0, 1);
             cancellationTokenSource.Cancel();
             SetFactory();
             factory.StartNew(() =>
@@ -148,17 +147,24 @@ namespace ZKClientNET.Leader
             return false;
         }
 
+        /// <summary>
+        /// 获得当前的所有参与者的路径名
+        /// </summary>
+        /// <returns></returns>
         public List<string> GetParticipantNodes()
         {
             return _lock.GetParticipantNodes();
         }
 
+        /// <summary>
+        /// 终止等待成为Leader
+        /// </summary>
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void InterruptLeadership()
         {
             cancellationTokenSource.Cancel();
             SetFactory();
-            Interlocked.CompareExchange(ref isInterrupted, 0, 1);
+            Interlocked.CompareExchange(ref isInterrupted, 1, 0);
         }
 
         /// <summary>
@@ -167,7 +173,7 @@ namespace ZKClientNET.Leader
         [MethodImpl(MethodImplOptions.Synchronized)]
         public void Close()
         {
-            if ((int)State.STARTED != Interlocked.CompareExchange(ref state, (int)State.STARTED, (int)State.CLOSED))
+            if ((int)State.STARTED != Interlocked.CompareExchange(ref state, (int)State.CLOSED, (int)State.STARTED))
             {
                 throw new ZKException("Already closed or has not been started");
             }

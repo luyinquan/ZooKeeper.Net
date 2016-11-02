@@ -31,7 +31,7 @@ namespace ZKClientNET.Lock
         {
             this.client = client;
             this.lockPath = lockPach;
-            countListener = new ZKChildListener().ChildCountChanged(
+            countListener = new ZKChildListener().ChildChange(
              (parentPath, currentChilds) =>
             {
                 if (Check(currentSeq, currentChilds))
@@ -73,7 +73,6 @@ namespace ZKClientNET.Lock
 
         public bool Lock()
         {
-            //信号量为0，线程就会一直等待直到数据变成正数
             semaphore = new Semaphore(1, 1);
             string newPath = client.Create(lockPath + "/1", null, CreateMode.EphemeralSequential);
             string[] paths = newPath.Split(new string[] { "/" }, StringSplitOptions.RemoveEmptyEntries);

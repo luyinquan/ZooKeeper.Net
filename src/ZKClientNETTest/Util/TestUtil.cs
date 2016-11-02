@@ -53,6 +53,11 @@ namespace ZKClientNETTest.Util
 
         public static void ReSetPathUnCreate(ZKClient _zkClient, string path)
         {
+            var children = _zkClient.GetChildren("/");
+            children.ForEach(x =>
+            {
+                _zkClient.DeleteRecursive("/" + x);
+            });
             if (_zkClient.Exists(path))
             {
                 _zkClient.DeleteRecursive(path);

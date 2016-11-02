@@ -117,6 +117,25 @@ namespace ZKClientNET.Connection
             }
         }
 
+        public void Connect(IWatcher watcher)
+        {
+            lock (_lock)
+            {
+                if (_eventTask != null)
+                {
+                    throw new Exception("Already connected.");
+                }
+                _eventTask = new EventTask(watcher);
+                _eventTask.Start();
+                _eventTask.Send(new WatchedEvent(KeeperState.SyncConnected, EventType.None, null));
+            }
+        }
+
+        public void ReConnect(IWatcher watcher)
+        {
+            throw new NotImplementedException();
+        }
+
         public void Close()
         {
             try
@@ -133,20 +152,6 @@ namespace ZKClientNET.Connection
             }
             finally
             {
-            }
-        }
-
-        public void Connect(IWatcher watcher)
-        {
-            lock (_lock)
-            {
-                if (_eventTask != null)
-                {
-                    throw new Exception("Already connected.");
-                }
-                _eventTask = new EventTask(watcher);
-                _eventTask.Start();
-                _eventTask.Send(new WatchedEvent(KeeperState.SyncConnected, EventType.None, null));
             }
         }
 
@@ -451,6 +456,6 @@ namespace ZKClientNET.Connection
             }
             throw new KeeperException.NoAuthException();
         }
-
+       
     }
 }
