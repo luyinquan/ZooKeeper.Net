@@ -3,7 +3,7 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
 
 ## 使用说明
     
-###创建会话
+####创建会话
 	public void CreateSession()
 	{
 		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
@@ -16,7 +16,7 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
 		zkClient = null;
 	}
 
-###创建节点
+####创建节点
 	public void CreateNode()
 	{
 		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
@@ -36,7 +36,7 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
 		zkClient = null;
 	}
 
-###获取节点中的数据
+####获取节点中的数据
 	public void GetData()
 	{
 		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
@@ -55,7 +55,7 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
 		zkClient = null;
 	}
 
-###判断节点是否存在
+####判断节点是否存在
 	public void Exists()
 	{
 		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
@@ -72,7 +72,7 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
 		zkClient = null;
 	}
 
-###删除节点
+####删除节点
 	public void Delete()
 	{
 		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
@@ -94,7 +94,7 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
 		zkClient = null;
 	}
 
-###更新数据
+####更新数据
 	public void WriteData()
 	{
 		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
@@ -115,7 +115,7 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
 		zkClient = null;
 	}
 
-###订阅节点的信息改变（创建节点，删除节点，添加子节点）
+####订阅节点的信息改变（创建节点，删除节点，添加子节点）
 	public void SubscribeChildChanges()
 	{
 		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
@@ -137,9 +137,7 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
 		zkClient = null;
 	}
 
-	/// <summary>
-	/// 订阅节点的数据内容的变化
-	/// </summary>
+####订阅节点的数据内容的变化
 	public void SubscribeDataChanges()
 	{
 		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
