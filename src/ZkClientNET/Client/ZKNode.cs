@@ -9,17 +9,14 @@ namespace ZKClientNET.Client
 {
     public class ZKNode
     {
-        private object p;
-        private CreateMode ephemeral;
-
         public ZKNode()
         { }
 
-        public ZKNode(string path, object p, CreateMode ephemeral)
+        public ZKNode(string path, object data, CreateMode createMode)
         {
             this.path = path;
-            this.p = p;
-            this.ephemeral = ephemeral;
+            this.data = data;
+            this.createMode = createMode;
         }
 
         public string path { set; get; }

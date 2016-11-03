@@ -56,11 +56,8 @@ namespace ZKClientNET.Connection
 
         public void ReConnect(IWatcher watcher)
         {
-            lock (_zookeeperLock)
-            {
-                Close();
-                Connect(watcher);
-            }
+            Close();
+            Connect(watcher);
         }
 
         public void Close()

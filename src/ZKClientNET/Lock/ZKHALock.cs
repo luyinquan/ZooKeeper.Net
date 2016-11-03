@@ -39,6 +39,7 @@ namespace ZKClientNET.Lock
                     semaphore.Release();
                 }
             });
+
             stateListener = new ZKStateListener().StateChanged(
             (state) =>
             {

@@ -6,16 +6,7 @@ namespace ZKClientNET.Util
 {
     public class ExceptionUtil
     {
-        //public static Exception convertToRuntimeException(Exception e)
-        //{
-        //    if (e as RuntimeException) {
-        //        return (RuntimeException)e;
-        //    }
-        //    retainInterruptFlag(e);
-        //    return new RuntimeException(e);
-        //}
-
-        public static Exception ConvertToRuntimeException(Exception e)
+        public static Exception ConvertToException(Exception e)
         {
             if ((e as Exception) != null)
             {

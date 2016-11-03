@@ -57,7 +57,7 @@ namespace ZKClientNET.Queue
             }
             catch (Exception e)
             {
-                throw ExceptionUtil.ConvertToRuntimeException(e);
+                throw ExceptionUtil.ConvertToException(e);
             }
             return true;
         }
@@ -93,7 +93,7 @@ namespace ZKClientNET.Queue
                 }
                 catch (Exception e)
                 {
-                    throw ExceptionUtil.ConvertToRuntimeException(e);
+                    throw ExceptionUtil.ConvertToException(e);
                 }
             }
         }
@@ -169,7 +169,7 @@ namespace ZKClientNET.Queue
             }
             catch (Exception e)
             {
-                throw ExceptionUtil.ConvertToRuntimeException(e);
+                throw ExceptionUtil.ConvertToException(e);
             }
         }
     

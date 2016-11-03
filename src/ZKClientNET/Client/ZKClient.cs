@@ -802,7 +802,7 @@ namespace ZKClientNET.Client
                 }
                 catch (Exception e)
                 {
-                    throw ExceptionUtil.ConvertToRuntimeException(e);
+                    throw ExceptionUtil.ConvertToException(e);
                 }
                 // before attempting a retry, check whether retry timeout has elapsed
                 if (_operationRetryTimeoutInMillis > -1 && 
@@ -1025,6 +1025,63 @@ namespace ZKClientNET.Client
                 }
             }
         }
+     
+        private void ProcessStateChanged(WatchedEvent @event)
+        {
+            LOG.Info("zookeeper state changed (" + @event.State + ")");
+            SetCurrentState(@event.State);
+            if (_shutdownTriggered)
+            {
+                return;
+            }
+            FireStateChangedEvent(@event.State);
+            if (@event.State == KeeperState.Expired)
+            {
+                try
+                {
+                    ReConnect(true);
+                    FireNewSessionEvents();
+                }
+                catch (Exception e)
+                {
+                    LOG.Info("Unable to re-establish connection. Notifying consumer of the following exception: ", e);
+                    FireSessionEstablishmentError(e);
+                }
+            }
+        }
+ 
+        private void FireDataChangedEvents(string path, ConcurrentHashSet<IZKDataListener> listeners, EventType eventType)
+        {
+            foreach (IZKDataListener listener in listeners)
+            {
+                _eventTask.Send(new ZKTask.ZKEvent("Data of " + path + " changed sent to " + nameof(listener))
+                {
+                    Run = () =>
+                    {
+                        // reinstall watch
+                        Exists(path, true);
+                        try
+                        {
+                            object data = ReadData<object>(path, null, true);
+                            if (eventType == EventType.NodeCreated)
+                            {
+                                listener.HandleDataCreated(path, data);
+                            }
+                            else
+                            {
+                                listener.HandleDataChange(path, data);
+                            }
+
+                            listener.HandleDataCreatedOrChange(path, data);
+                        }
+                        catch (ZKNoNodeException e)
+                        {
+                            listener.HandleDataDeleted(path);
+                        }
+                    }
+                });
+            }
+        }
 
         private void FireChildChangedEvents(string path, ConcurrentHashSet<IZKChildListener> childListeners, EventType eventType)
         {
@@ -1065,63 +1122,6 @@ namespace ZKClientNET.Client
             }
         }
 
-        private void FireDataChangedEvents(string path, ConcurrentHashSet<IZKDataListener> listeners, EventType eventType)
-        {
-            foreach (IZKDataListener listener in listeners)
-            {
-                _eventTask.Send(new ZKTask.ZKEvent("Data of " + path + " changed sent to " + nameof(listener))
-                {
-                    Run = () =>
-                    {
-                        // reinstall watch
-                        Exists(path, true);
-                        try
-                        {
-                            object data = ReadData<object>(path, null, true);
-                            if (eventType == EventType.NodeCreated)
-                            {
-                                listener.HandleDataCreated(path, data);
-                            }
-                            else
-                            {
-                                listener.HandleDataChange(path, data);
-                            }
-
-                            listener.HandleDataCreatedOrChange(path, data);
-                        }
-                        catch (ZKNoNodeException e)
-                        {
-                            listener.HandleDataDeleted(path);
-                        }
-                    }
-                });
-            }
-        }
- 
-        private void ProcessStateChanged(WatchedEvent @event)
-        {
-            LOG.Info("zookeeper state changed (" + @event.State + ")");
-            SetCurrentState(@event.State);
-            if (_shutdownTriggered)
-            {
-                return;
-            }
-            FireStateChangedEvent(@event.State);
-            if (@event.State == KeeperState.Expired)
-            {
-                try
-                {
-                    ReConnect(true);
-                    FireNewSessionEvents();
-                }
-                catch (Exception e)
-                {
-                    LOG.Info("Unable to re-establish connection. Notifying consumer of the following exception: ", e);
-                    FireSessionEstablishmentError(e);
-                }
-            }
-        }
-
         private void FireNewSessionEvents()
         {
             foreach (IZKStateListener stateListener in _stateListener)
@@ -1140,8 +1140,7 @@ namespace ZKClientNET.Client
         {
             foreach (IZKStateListener stateListener in _stateListener)
             {
-                //_eventThread.Send(new ZKEventThread.ZKEvent("State changed to " + state + " sent to " + stateListener)
-                _eventTask.Send(new ZKTask.ZKEvent("State changed to " + state + " sent to " + nameof(stateListener))
+                _eventTask.Send(new ZKTask.ZKEvent("State changed to " + Convert.ToString(state) + " sent to " + nameof(stateListener))
                 {
                     Run = () =>
                     {
