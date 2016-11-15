@@ -31,7 +31,7 @@ namespace ZKClientNET.Lock
         private ZKClient client;
         private string lockPath;
         private Semaphore semaphore;
-        public int hasLock = 0;
+        public volatile bool hasLock = false;
         //锁的值一定要唯一,且不允许为null，这里采用Guid
         private string lockNodeData = Guid.NewGuid().ToString("N");
         private  int delayTimeMillis = 0;
@@ -54,7 +54,7 @@ namespace ZKClientNET.Lock
                 {
                     if (!factory.CancellationToken.IsCancellationRequested)
                     {
-                        if (hasLock == 0)
+                        if (!hasLock)
                         {
                             //如果当前没有持有锁
                             //为了解决网络闪断问题，先等待一段时间，再重新竞争锁
@@ -75,7 +75,7 @@ namespace ZKClientNET.Lock
                     {
                         if (!factory.CancellationToken.IsCancellationRequested)
                         {
-                            if (hasLock==1)
+                            if (hasLock)
                             {
                                 //现在持有锁                            
                                 //重新创建节点
@@ -89,7 +89,7 @@ namespace ZKClientNET.Lock
                                     {
                                         if (lockNodeData != client.ReadData<string>(lockPath + "/lock"))
                                         {
-                                            Interlocked.CompareExchange(ref hasLock, 0, 1);
+                                            hasLock = false;
                                         }
                                     }
                                     catch (ZKNoNodeException e2)
@@ -165,7 +165,7 @@ namespace ZKClientNET.Lock
                 {
                     semaphore = new Semaphore(1, 1);
                     client.Create(lockPath + "/lock", lockNodeData, CreateMode.Ephemeral);
-                    Interlocked.CompareExchange(ref hasLock, 1, 0);
+                    hasLock = true;
                     return true;
                 }
                 catch (ZKNodeExistsException e)
@@ -203,9 +203,9 @@ namespace ZKClientNET.Lock
 
         public bool UnLock()
         {
-            if (hasLock == 1)
+            if (hasLock)
             {
-                Interlocked.CompareExchange(ref hasLock, 0, 1);
+                hasLock = false;
                 client.UnSubscribeDataChanges(lockPath + "/lock", nodeListener);
                 client.UnSubscribeStateChanges(stateListener);
                 cancellationTokenSource.Cancel();

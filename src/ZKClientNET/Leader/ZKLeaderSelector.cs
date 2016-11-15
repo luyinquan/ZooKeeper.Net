@@ -28,8 +28,8 @@ namespace ZKClientNET.Leader
         private TaskFactory factory;
         private IZKLeaderSelectorListener listener;
         private IZKStateListener stateListener;
-        private int isInterrupted = 0;
-        private int autoRequeue = 0;
+        private volatile bool isInterrupted = false;
+        private volatile bool autoRequeue = false;
         private int state = (int)State.LATENT;
 
         private enum State
@@ -51,7 +51,7 @@ namespace ZKClientNET.Leader
         {
             this.id = id;
             this.client = client;
-            this.autoRequeue = autoRequue ? 1 : 0;
+            this.autoRequeue = autoRequue;
             this.leaderPath = leaderPath;
             this._lock = ZKDistributedLock.NewInstance(client, leaderPath);
             this._lock.lockNodeData = id;
@@ -63,7 +63,7 @@ namespace ZKClientNET.Leader
                 if (state == KeeperState.SyncConnected)
                 {
                     //如果重新连接
-                    if (isInterrupted == 0)
+                    if (!isInterrupted)
                     {
                         Requeue();
                     }
@@ -107,7 +107,7 @@ namespace ZKClientNET.Leader
                 throw new ZKException("close() has already been called");
             }
 
-            Interlocked.CompareExchange(ref isInterrupted, 0, 1);
+            isInterrupted = false;
             cancellationTokenSource.Cancel();
             SetFactory();
             factory.StartNew(() =>
@@ -164,7 +164,7 @@ namespace ZKClientNET.Leader
         {
             cancellationTokenSource.Cancel();
             SetFactory();
-            Interlocked.CompareExchange(ref isInterrupted, 1, 0);
+            isInterrupted = true;
         }
 
         /// <summary>
