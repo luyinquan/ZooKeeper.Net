@@ -19,7 +19,7 @@ namespace ZKClientNET.Lock
     public class ZKDistributedLock : IZKLock
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(ZKDistributedLock));
-        private ZKChildListener countListener;
+        private IZKChildListener countListener;
         private ZKClient client;
         private string lockPath;
         private string currentSeq;
@@ -30,7 +30,7 @@ namespace ZKClientNET.Lock
         {
             this.client = client;
             this.lockPath = lockPach;
-            ZKChildListener childListener = new ZKChildListener().ChildChange(
+            IZKChildListener childListener = new ZKChildListener().ChildChange(
             (parentPath, currentChilds) =>
             {
                 if (Check(currentSeq, currentChilds))

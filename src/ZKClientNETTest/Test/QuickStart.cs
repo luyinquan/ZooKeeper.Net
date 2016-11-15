@@ -160,7 +160,7 @@ namespace ZKClientNETTest.Test
                              .Serializer(new SerializableSerializer())
                              .Build();
             Console.WriteLine("conneted ok!");
-            ZKChildListener childListener = new ZKChildListener().ChildChange((parentPath, currentChilds) =>
+            IZKChildListener childListener = new ZKChildListener().ChildChange((parentPath, currentChilds) =>
             {
                 Console.WriteLine(parentPath);
                 Console.WriteLine(string.Join(".", currentChilds));

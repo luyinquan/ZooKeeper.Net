@@ -26,8 +26,8 @@ namespace ZKClientNET.Leader
         private string leaderPath;
         private CancellationTokenSource cancellationTokenSource;
         private TaskFactory factory;
-        private ZKLeaderSelectorListener listener;
-        private ZKStateListener stateListener;
+        private IZKLeaderSelectorListener listener;
+        private IZKStateListener stateListener;
         private int isInterrupted = 0;
         private int autoRequeue = 0;
         private int state = (int)State.LATENT;

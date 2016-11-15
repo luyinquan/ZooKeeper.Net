@@ -242,7 +242,7 @@ namespace ZKClientNETTest.Test
             string path = "/a";
             int count = 0;
             Holder<List<string>> children = new Holder<List<string>>();
-            ZKChildListener listener = new ZKChildListener().ChildChange(
+            IZKChildListener listener = new ZKChildListener().ChildChange(
            (parentPath, currentChilds) =>
             {
                 Interlocked.Increment(ref count);
