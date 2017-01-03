@@ -561,6 +561,21 @@ namespace ZKClientNET.Client
             WriteData(path, data, -1);
         }
 
+        public void WriteData<T>(string path, T data, int version)
+        {
+            WriteDataReturnStat<T>(path, data, version);
+        }
+
+        public Stat WriteDataReturnStat<T>(string path, T datat, int expectedVersion)
+        {
+            byte[] data = Serialize(datat);
+            return RetryUntilConnected(() =>
+            {
+                Stat stat = _connection.WriteDataReturnStat(path, data, expectedVersion);
+                return stat;
+            });
+        }
+
         public void UpdateDataSerialized<T>(string path, IDataUpdater<T> updater)
         {
             Stat stat = new Stat();
@@ -581,20 +596,6 @@ namespace ZKClientNET.Client
             } while (retry);
         }
 
-        private void WriteData<T>(string path, T data, int expectedVersion)
-        {
-            WriteDataReturnStat<T>(path, data, expectedVersion);
-        }
-
-        public Stat WriteDataReturnStat<T>(string path, T datat, int expectedVersion)
-        {
-            byte[] data = Serialize(datat);
-            return RetryUntilConnected(() =>
-            {
-                Stat stat = _connection.WriteDataReturnStat(path, data, expectedVersion);
-                return stat;
-            });
-        }
 
         /// <summary>
         /// 监听数据变化
