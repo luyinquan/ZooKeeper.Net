@@ -1,5 +1,4 @@
 ﻿using log4net;
-using System;
 using System.Threading;
 using ZKClientNET.Client;
 using ZKClientNET.Exceptions;

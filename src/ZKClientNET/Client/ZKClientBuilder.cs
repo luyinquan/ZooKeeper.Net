@@ -1,26 +1,22 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ZKClientNET.Exceptions;
 using ZKClientNET.Serialize;
 
 namespace ZKClientNET.Client
 {
     /// <summary>
-    /// ZKClient辅助创建类
+    /// ZKClientNET辅助创建类
     /// </summary>
-   public  class ZKClientBuilder
+    public  class ZKClientBuilder
     {
         private int connectionTimeout = int.MaxValue;
         private IZKSerializer zkSerializer = new SerializableSerializer();
         private string servers;
-        private int sessionTimeout = 30000;
+        private int sessionTimeout = 3000;
         private int retryTimeout = -1;
 
         /// <summary>
-        /// 创建ZKClient
+        /// 创建ZKClientNET
         /// </summary>
         /// <returns></returns>
         public static ZKClientBuilder NewZKClient()
@@ -30,7 +26,7 @@ namespace ZKClientNET.Client
         }
 
         /// <summary>
-        /// 创建ZKClient
+        /// 创建ZKClientNET
         /// </summary>
         /// <param name="servers"></param>
         /// <returns></returns>
@@ -42,7 +38,7 @@ namespace ZKClientNET.Client
         }
 
         /// <summary>
-        /// 组件并初始化ZKClient
+        /// 组件并初始化ZKClientNET
         /// </summary>
         /// <returns></returns>
         public ZKClient Build()
@@ -51,7 +47,12 @@ namespace ZKClientNET.Client
             {
                 throw new ZKException("Servers can not be empty !");
             }
-            ZKClient zkClient = new ZKClient(servers, new TimeSpan(0, 0, 0, 0, sessionTimeout), new TimeSpan(0, 0, 0, 0, connectionTimeout), zkSerializer, retryTimeout);
+            ZKClient zkClient = new ZKClient(
+                servers, 
+                new TimeSpan(0, 0, 0, 0, sessionTimeout), 
+                new TimeSpan(0, 0, 0, 0, connectionTimeout), 
+                zkSerializer, 
+                retryTimeout);
             return zkClient;
         }
 

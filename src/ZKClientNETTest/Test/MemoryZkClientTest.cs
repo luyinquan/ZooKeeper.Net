@@ -3,9 +3,6 @@ using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ZKClientNET.Connection;
@@ -341,7 +338,7 @@ namespace ZKClientNETTest.Test
             _zkClient.SubscribeChildChanges("/", zkChildListener.Object);
             Assert.True(1 == _zkClient.NumberOfListeners());
 
-            var zkDataListener = new Mock<ZKClientNET.Listener.IZKDataListener>();
+            var zkDataListener = new Mock<IZKDataListener>();
             _zkClient.SubscribeDataChanges("/a", zkDataListener.Object);
             Assert.True(2 == _zkClient.NumberOfListeners());
 

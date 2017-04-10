@@ -1,10 +1,5 @@
 ﻿using NUnit.Framework;
-using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using ZKClientNET.Connection;
 using ZKClientNET.Util;
 using ZooKeeperNet;
@@ -13,7 +8,7 @@ using ZKClientNET.Client;
 
 namespace ZKClientNETTest.Test
 {
-   public  class ZKConnectionTest
+    public  class ZKConnectionTest
     {
         protected IZKConnection _connection;
 

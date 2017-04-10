@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace ZKClientNET.Client
+﻿namespace ZKClientNET.Client
 {
     /// <summary>
-    /// Updates the data of a znode. This is used together with {@link ZKClient#updateDataSerialized(String, DataUpdater)}.
+    /// Updates the data of a znode. This is used together with {@link ZKClientNET#updateDataSerialized(String, DataUpdater)}.
     /// </summary>
     public interface IDataUpdater<T>
     {

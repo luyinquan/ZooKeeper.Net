@@ -1,12 +1,7 @@
 ﻿using NUnit.Framework;
 using Org.Apache.Zookeeper.Data;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using ZKClientNET.Client;
 using ZKClientNET.Listener;
 using ZKClientNET.Serialize;
@@ -50,7 +45,10 @@ namespace ZKClientNETTest.Test
             user.Id = 1;
             user.Name = "testUser";
 
-            string path = zkClient.Create("/testUserNode", user, CreateMode.Persistent);
+            zkClient.DeleteRecursive("/testUserNode");
+
+            var path = zkClient.Create("/testUserNode", user, CreateMode.Persistent);
+
             //输出创建节点的路径  
             Console.WriteLine("created path:" + path);
             zkClient.Close();

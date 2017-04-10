@@ -3,7 +3,6 @@ using Org.Apache.Zookeeper.Data;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using ZKClientNET.Connection;
@@ -24,8 +23,8 @@ namespace ZKClientNET.Client
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(ZKClient));
                
-        private ConcurrentDictionary<string, ConcurrentHashSet<IZKChildListener>> _childListener = new ConcurrentDictionary<string, ConcurrentHashSet<IZKChildListener>>();
-        private ConcurrentDictionary<string, ConcurrentHashSet<IZKDataListener>> _dataListener = new ConcurrentDictionary<string, ConcurrentHashSet<IZKDataListener>>();
+        private ConcurrentDictionary<string, ConcurrentHashSet<IZKChildListener>> _childListeners = new ConcurrentDictionary<string, ConcurrentHashSet<IZKChildListener>>();
+        private ConcurrentDictionary<string, ConcurrentHashSet<IZKDataListener>> _dataListeners = new ConcurrentDictionary<string, ConcurrentHashSet<IZKDataListener>>();
         private ConcurrentHashSet<IZKStateListener> _stateListener = new ConcurrentHashSet<IZKStateListener>();
         //保存Ephemeral类型的节点，用于在断开重连，以及会话失效后的自动创建节点
         private ConcurrentDictionary<string, ZKNode> ephemeralNodeMap = new ConcurrentDictionary<string, ZKNode>();
@@ -46,7 +45,7 @@ namespace ZKClientNET.Client
         private volatile bool _closed;
         private ZKTask _eventTask;
 
-        #region ZKClient
+        #region ZKClientNET
         public ZKClient(string serverstring) : this(serverstring, new TimeSpan(0, 0, 0, 0, int.MaxValue))
         {
 
@@ -68,7 +67,7 @@ namespace ZKClientNET.Client
         }
 
         /// <summary>
-        /// Most operations done through this {@link org.I0Itec.zkclient.ZKClient}
+        /// Most operations done through this {@link org.I0Itec.zkclient.ZKClientNET}
         /// are retried in cases like
         /// connection loss with the Zookeeper servers.During such failures, this
         /// <code>operationRetryTimeout</code> decides the maximum amount of time, in milli seconds, each
@@ -102,7 +101,7 @@ namespace ZKClientNET.Client
         }
 
         /// <summary>
-        /// Most operations done through this {@link org.I0Itec.zkclient.ZKClient} are retried in cases like
+        /// Most operations done through this {@link org.I0Itec.zkclient.ZKClientNET} are retried in cases like
         /// connection loss with the Zookeeper servers.During such failures, this
         /// <code>operationRetryTimeout</code> decides the maximum amount of time, in milli seconds, each
         /// operation is retried.A value lesser than 0 is considered as
@@ -134,52 +133,45 @@ namespace ZKClientNET.Client
 
         public List<string> SubscribeChildChanges(string path, IZKChildListener listener)
         {
-            //Monitor.Enter(_childListener);
             ConcurrentHashSet<IZKChildListener> listeners;
-            _childListener.TryGetValue(path, out listeners);
+            _childListeners.TryGetValue(path, out listeners);
             if (listeners == null)
             {
                 listeners = new ConcurrentHashSet<IZKChildListener>();
-                _childListener.TryAdd(path, listeners);
+                _childListeners.TryAdd(path, listeners);
             }
             listeners.Add(listener);
-            //Monitor.Exit(_childListener);
             return WatchForChilds(path);
         }
 
         public void UnSubscribeChildChanges(string path, IZKChildListener childListener)
         {
-            //Monitor.Enter(_childListener);
             ConcurrentHashSet<IZKChildListener> listeners;
-            _childListener.TryGetValue(path, out listeners);
+            _childListeners.TryGetValue(path, out listeners);
             if (listeners != null)
             {
                 listeners.Remove(childListener);
             }
-            //Monitor.Exit(_childListener);
         }
 
         public void SubscribeDataChanges(string path, IZKDataListener listener)
         {
             ConcurrentHashSet<IZKDataListener> listeners;
-            //Monitor.Enter(_dataListener);
-            _dataListener.TryGetValue(path, out listeners);
+            _dataListeners.TryGetValue(path, out listeners);
             if (listeners == null)
             {
                 listeners = new ConcurrentHashSet<IZKDataListener>();
-                _dataListener.TryAdd(path, listeners);
+                _dataListeners.TryAdd(path, listeners);
             }
             listeners.Add(listener);
-            //Monitor.Exit(_dataListener);
             WatchForData(path);
             LOG.Debug("Subscribed data changes for " + path);
         }
 
         public void UnSubscribeDataChanges(string path, IZKDataListener dataListener)
         {
-            //Monitor.Enter(_dataListener);
             ConcurrentHashSet<IZKDataListener> listeners;
-            _dataListener.TryGetValue(path, out listeners);
+            _dataListeners.TryGetValue(path, out listeners);
             if (listeners != null)
             {
                 listeners.Remove(dataListener);
@@ -187,38 +179,25 @@ namespace ZKClientNET.Client
             if (listeners == null || listeners.IsEmpty)
             {
                 ConcurrentHashSet<IZKDataListener> _listeners;
-                _dataListener.TryRemove(path, out _listeners);
+                _dataListeners.TryRemove(path, out _listeners);
             }
-            //Monitor.Exit(_dataListener);
         }
 
         public void SubscribeStateChanges(IZKStateListener listener)
         {
-            //Monitor.Enter(_stateListener);
             _stateListener.Add(listener);
-            //Monitor.Exit(_stateListener);
         }
 
         public void UnSubscribeStateChanges(IZKStateListener stateListener)
         {
-            //Monitor.Enter(_stateListener);
             _stateListener.Remove(stateListener);
-            //Monitor.Exit(_stateListener);
         }
 
         public void UnSubscribeAll()
         {
-            //Monitor.Enter(_childListener);
-            _childListener.Clear();
-            //Monitor.Exit(_childListener);
-
-            //Monitor.Enter(_dataListener);
-            _dataListener.Clear();
-            //Monitor.Exit(_dataListener);
-
-            //Monitor.Enter(_stateListener);
+            _childListeners.Clear();
+            _dataListeners.Clear();
             _stateListener.Clear();
-            //Monitor.Exit(_stateListener);
         }
 
         /// <summary>
@@ -321,7 +300,7 @@ namespace ZKClientNET.Client
                 Stat stat = new Stat();
                 _connection.ReadData(path, stat, false);
                 _connection.SetACL(path, acl, stat.Aversion);
-                return default(KeyValuePair<List<ACL>, Stat>); ;
+                return default(KeyValuePair<List<ACL>, Stat>); 
             });
         }
 
@@ -743,7 +722,7 @@ namespace ZKClientNET.Client
             {
                 return;
             }
-            LOG.Debug("Closing ZKClient...");
+            LOG.Debug("Closing ZKClientNET...");
 
             lock (_zkEventLock)
             {
@@ -760,7 +739,7 @@ namespace ZKClientNET.Client
                     throw new ZKInterruptedException(e);
                 }
             }
-            LOG.Debug("Closing ZKClient...done");
+            LOG.Debug("Closing ZKClientNET...done");
         }
 
 
@@ -775,7 +754,7 @@ namespace ZKClientNET.Client
             {
                 if (_closed)
                 {
-                    throw new Exception("ZKClient already closed!");
+                    throw new Exception("ZKClientNET already closed!");
                 }
                 try
                 {
@@ -982,20 +961,20 @@ namespace ZKClientNET.Client
 
         private void FireAllEvents(EventType eventType)
         {
-            foreach (string _key in _childListener.Keys)
+            foreach (string _key in _childListeners.Keys)
             {
                 string key = _key;
                 ConcurrentHashSet<IZKChildListener> childListenes;
-                if (_childListener.TryGetValue(key, out childListenes))
+                if (_childListeners.TryGetValue(key, out childListenes))
                 {
                     FireChildChangedEvents(key, childListenes, eventType);
                 }
             }
-            foreach (string _key in _dataListener.Keys)
+            foreach (string _key in _dataListeners.Keys)
             {
                 string key = _key;
                 ConcurrentHashSet<IZKDataListener> dataListeners;
-                if (_dataListener.TryGetValue(key, out dataListeners))
+                if (_dataListeners.TryGetValue(key, out dataListeners))
                 {
                     FireDataChangedEvents(key, dataListeners, eventType);
                 }
@@ -1009,7 +988,7 @@ namespace ZKClientNET.Client
             if (@event.Type == EventType.NodeChildrenChanged || @event.Type == EventType.NodeCreated || @event.Type == EventType.NodeDeleted)
             {
                 ConcurrentHashSet<IZKChildListener> childListeners;
-                _childListener.TryGetValue(path, out childListeners);
+                _childListeners.TryGetValue(path, out childListeners);
                 if (childListeners != null && !childListeners.IsEmpty())
                 {
                     FireChildChangedEvents(path, childListeners, @event.Type);
@@ -1019,7 +998,7 @@ namespace ZKClientNET.Client
             if (@event.Type == EventType.NodeDataChanged || @event.Type == EventType.NodeDeleted || @event.Type == EventType.NodeCreated)
             {
                 ConcurrentHashSet<IZKDataListener> listeners;
-                _dataListener.TryGetValue(path, out listeners);
+                _dataListeners.TryGetValue(path, out listeners);
                 if (listeners != null && !listeners.IsEmpty())
                 {
                     FireDataChangedEvents(@event.Path, listeners, @event.Type);
@@ -1168,13 +1147,13 @@ namespace ZKClientNET.Client
         private bool HasListeners(string path)
         {
             ConcurrentHashSet<IZKDataListener> dataListeners = null;
-            _dataListener.TryGetValue(path, out dataListeners);
+            _dataListeners.TryGetValue(path, out dataListeners);
             if (dataListeners != null && dataListeners.Count > 0)
             {
                 return true;
             }
             ConcurrentHashSet<IZKChildListener> childListeners = null;
-            _childListener.TryGetValue(path, out childListeners);
+            _childListeners.TryGetValue(path, out childListeners);
             if (childListeners != null && childListeners.Count > 0)
             {
                 return true;
@@ -1185,11 +1164,11 @@ namespace ZKClientNET.Client
         public int NumberOfListeners()
         {
             int listeners = 0;
-            foreach (ConcurrentHashSet<IZKChildListener> childListeners in _childListener.Values)
+            foreach (ConcurrentHashSet<IZKChildListener> childListeners in _childListeners.Values)
             {
                 listeners += childListeners.Count;
             }
-            foreach (ConcurrentHashSet<IZKDataListener> dataListeners in _dataListener.Values)
+            foreach (ConcurrentHashSet<IZKDataListener> dataListeners in _dataListeners.Values)
             {
                 listeners += dataListeners.Count;
             }

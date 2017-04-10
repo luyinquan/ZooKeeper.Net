@@ -13,7 +13,7 @@ namespace ZKClientNET.Connection
     {
         private static readonly ILog LOG = LogManager.GetLogger(typeof(ZKConnection));
 
-        private static TimeSpan DEFAULT_SESSION_TIMEOUT = new TimeSpan(0, 0, 0, 0, 30000);
+        private static TimeSpan DEFAULT_SESSION_TIMEOUT = new TimeSpan(0, 0, 0, 0, 3000);
 
         private ZooKeeper _zk { set; get; } = null;
    

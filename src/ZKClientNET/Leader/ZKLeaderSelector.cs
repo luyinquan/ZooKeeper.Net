@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using ZKClientNET.Client;
@@ -44,7 +41,7 @@ namespace ZKClientNET.Leader
         /// </summary>
         /// <param name="id"> 每个Leader选举的参与者都有一个ID标识，用于区分各个参与者。</param>
         /// <param name="autoRequue"> 是否在由于网络问题造成与服务器断开连接后，自动参与到选举队列中。</param>
-        /// <param name="client"> ZKClient</param>
+        /// <param name="client"> ZKClientNET</param>
         /// <param name="leaderPath"> 选举的路径</param>
         /// <param name="listener"> 成为Leader后执行的的监听器</param>
         public ZKLeaderSelector(string id, bool autoRequue, ZKClient client, string leaderPath, IZKLeaderSelectorListener listener)

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ZKClientNET.Client;
 using ZKClientNET.Exceptions;
 using ZKClientNET.Util;
@@ -36,7 +35,7 @@ namespace ZKClientNET.Queue
         /// <summary>
         /// 创建分布式队列
         /// </summary>
-        /// <param name="zkClient">ZKClient客户端</param>
+        /// <param name="zkClient">ZKClientNET客户端</param>
         /// <param name="root">分布式队列根路径</param>
         public ZKDistributedQueue(ZKClient zkClient, string root)
         {

@@ -58,7 +58,7 @@ namespace ZKClientNET.Client
         {
             while (!tokenSource.IsCancellationRequested)
             {
-                LOG.Info("Starting ZKClient event thread.");
+                LOG.Info("Starting ZKClientNET event thread.");
                 ZKEvent zkEvent = _events.Take();
                 Interlocked.Increment(ref _eventId);
                 int eventId = _eventId;

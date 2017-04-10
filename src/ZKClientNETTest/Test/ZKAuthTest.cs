@@ -1,18 +1,14 @@
 ﻿using log4net;
 using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using ZKClientNET.Client;
 using ZKClientNETTest.Util;
 using ZooKeeperNet;
 
 namespace ZKClientNETTest.Test
 {
-   public  class ZKAuthTest
+    public  class ZKAuthTest
     {
         protected ZKClient _zkClient;
         protected static readonly ILog LOG = LogManager.GetLogger(typeof(ZKAuthTest));

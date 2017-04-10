@@ -58,14 +58,11 @@
     <Compile Include="Leader\ILeaderSelector.cs" />
     <Compile Include="Leader\IZKLeaderSelectorListener.cs" />
     <Compile Include="Leader\ZKLeaderSelectorListener.cs" />
-    <Compile Include="Leader\ZKLeaderDelySelector.cs" />
     <Compile Include="Leader\ZKLeaderSelector.cs" />
     <Compile Include="Listener\IZKChildListener.cs" />
     <Compile Include="Listener\IZKDataListener.cs" />
     <Compile Include="Listener\IZKStateListener.cs" />
-    <Compile Include="Lock\ZKDistributedDelayLock.cs" />
     <Compile Include="Lock\ZKDistributedLock.cs" />
-    <Compile Include="Lock\ZKHALock.cs" />
     <Compile Include="Lock\ZKLock.cs" />
     <Compile Include="Queue\ZKDistributedQueue.cs" />
     <Compile Include="Connection\InMemoryConnection.cs" />
@@ -74,7 +71,6 @@
     <Compile Include="Exceptions\ZKBadVersionException.cs" />
     <Compile Include="Exceptions\ZKException.cs" />
     <Compile Include="Exceptions\ZKInterruptedException.cs" />
-    <Compile Include="Exceptions\ZKMarshallingError.cs" />
     <Compile Include="Exceptions\ZKNodeExistsException.cs" />
     <Compile Include="Exceptions\ZKNoNodeException.cs" />
     <Compile Include="Exceptions\ZKTimeoutException.cs" />
