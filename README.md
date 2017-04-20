@@ -1,165 +1,103 @@
-## ZKClient
+﻿## ZookeeperClient
 A zookeeper client, that makes life a little easier. Implemented by .Net. Reference https://github.com/sgroschupf/zkclient https://github.com/yuluows/zkclient 
 
 ## 使用说明
     
-####创建会话
-	public void CreateSession()
-	{
-		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
-						 .SessionTimeout(10000)
-						 .ConnectionTimeout(10000)
-						 .Serializer(new SerializableSerializer())
-						 .Build();
-		Console.WriteLine("conneted ok!");
-		zkClient.Close();
-		zkClient = null;
-	}
+### 创建会话
+	   using (ZKClient zkClient = ZKClientBuilder.NewZKClient(TestUtil.zkServers).Build())
+       {
+            Console.WriteLine("conneted ok!");
+       }
 
-####创建节点
-	public void CreateNode()
-	{
-		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
-						 .SessionTimeout(10000)
-						 .ConnectionTimeout(10000)
-						 .Serializer(new SerializableSerializer())
-						 .Build();
-		Console.WriteLine("conneted ok!");
-		User user = new User();
-		user.Id = 1;
-		user.Name = "testUser";
+### 创建节点
+	   using (ZKClient zkClient = ZKClientBuilder.NewZKClient(TestUtil.zkServers).Build())
+       {
+            var user = new User();
+            user.Id = 1;
+            user.Name = "testUser";
+            await zkClient.DeleteRecursiveAsync("/testUserNode");
+            var path = await zkClient.CreateAsync("/testUserNode", user, CreateMode.PERSISTENT);
+            //输出创建节点的路径  
+            Console.WriteLine("created path:" + path);
+       }
 
-		string path = zkClient.Create("/testUserNode", user, CreateMode.Persistent);
-		//输出创建节点的路径  
-		Console.WriteLine("created path:" + path);
-		zkClient.Close();
-		zkClient = null;
-	}
+### 获取节点中的数据
+	 using (ZKClient zkClient = ZKClientBuilder.NewZKClient(TestUtil.zkServers).Build())
+     {
+            //获取 节点中的对象  
+            var user = await zkClient.GetDataAsync<User>("/testUserNode");
+            Console.WriteLine(user.Name);
+     }
 
-####获取节点中的数据
-	public void GetData()
-	{
-		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
-						 .SessionTimeout(10000)
-						 .ConnectionTimeout(10000)
-						 .Serializer(new SerializableSerializer())
-						 .Build();
-		Console.WriteLine("conneted ok!");
+### 判断节点是否存在
+	 using (ZKClient zkClient = ZKClientBuilder.NewZKClient(TestUtil.zkServers).Build())
+     {
+            var e = await zkClient.ExistsAsync("/testUserNode");
+            //返回 true表示节点存在 ，false表示不存在  
+            Console.WriteLine(e);
+     }
 
-		Stat stat = new Stat();
-		//获取 节点中的对象  
-		User user = zkClient.ReadData<User>("/testUserNode", stat);
-		Console.WriteLine(user.Name);
-		Console.WriteLine(stat);
-		zkClient.Close();
-		zkClient = null;
-	}
+### 删除节点
+	using (ZKClient zkClient = ZKClientBuilder.NewZKClient(TestUtil.zkServers).Build())
+     {
+            //删除单独一个节点，返回true表示成功  
+            var e1 = await zkClient.DeleteAsync("/testUserNode");
+            //删除含有子节点的节点  
+            var e2 = await zkClient.DeleteRecursiveAsync("/test");
 
-####判断节点是否存在
-	public void Exists()
-	{
-		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
-						 .SessionTimeout(10000)
-						 .ConnectionTimeout(10000)
-						 .Serializer(new SerializableSerializer())
-						 .Build();
-		Console.WriteLine("conneted ok!");
+            //返回 true表示节点成功 ，false表示删除失败  
+            Console.WriteLine(e1);
+            Console.WriteLine(e2);
+     }
 
-		bool e = zkClient.Exists("/testUserNode");
-		//返回 true表示节点存在 ，false表示不存在  
-		Console.WriteLine(e);
-		zkClient.Close();
-		zkClient = null;
-	}
+### 更新数据
+	 using (ZKClient zkClient = ZKClientBuilder.NewZKClient(TestUtil.zkServers).Build())
+     {
+            var user = new User();
+            user.Id = 2;
+            user.Name = "testUser2";
 
-####删除节点
-	public void Delete()
-	{
-		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
-						 .SessionTimeout(10000)
-						 .ConnectionTimeout(10000)
-						 .Serializer(new SerializableSerializer())
-						 .Build();
-		Console.WriteLine("conneted ok!");
+            //testUserNode 节点的路径 
+            //user 传入的数据对象
+            await zkClient.SetDataAsync<User>("/testUserNode", user);
+     }
 
-		//删除单独一个节点，返回true表示成功  
-		bool e1 = zkClient.Delete("/testUserNode");
-		//删除含有子节点的节点  
-		bool e2 = zkClient.DeleteRecursive("/test");
+### 订阅节点的信息改变（创建节点，删除节点，添加子节点）
+	 using (ZKClient zkClient = ZKClientBuilder.NewZKClient(TestUtil.zkServers).Build())
+     {
+                var childListener = new ZKChildListener();
+                childListener.ChildChangeHandler = async (parentPath, currentChilds) =>
+                 {
+                     await Task.Run(() =>
+                     {
+                         Console.WriteLine(parentPath);
+                         Console.WriteLine(string.Join(".", currentChilds));
+                     });
+                 };
+                //"/testUserNode" 监听的节点，可以是现在存在的也可以是不存在的 
+                zkClient.SubscribeChildChanges("/testUserNode3", childListener);
+     }
 
-		//返回 true表示节点成功 ，false表示删除失败  
-		Console.WriteLine(e1);
-		Console.WriteLine(e2);
-		zkClient.Close();
-		zkClient = null;
-	}
-
-####更新数据
-	public void WriteData()
-	{
-		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
-						  .SessionTimeout(10000)
-						  .ConnectionTimeout(10000)
-						  .Serializer(new SerializableSerializer())
-						  .Build();
-		Console.WriteLine("conneted ok!");
-
-		User user = new User();
-		user.Id = 2;
-		user.Name = "testUser2";
-
-		//testUserNode 节点的路径 
-		// user 传入的数据对象
-		zkClient.WriteData("/testUserNode", user);
-		zkClient.Close();
-		zkClient = null;
-	}
-
-####订阅节点的信息改变（创建节点，删除节点，添加子节点）
-	public void SubscribeChildChanges()
-	{
-		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
-						 .SessionTimeout(10000)
-						 .ConnectionTimeout(10000)
-						 .Serializer(new SerializableSerializer())
-						 .Build();
-		Console.WriteLine("conneted ok!");
-		ZKChildListener childListener = new ZKChildListener().ChildChange((parentPath, currentChilds) =>
-		{
-			Console.WriteLine(parentPath);
-			Console.WriteLine(string.Join(".", currentChilds));
-		});
-
-		//"/testUserNode" 监听的节点，可以是现在存在的也可以是不存在的 
-		zkClient.SubscribeChildChanges("/testUserNode3", childListener);
-		Thread.Sleep(int.MaxValue);
-		zkClient.Close();
-		zkClient = null;
-	}
-
-####订阅节点的数据内容的变化
-	public void SubscribeDataChanges()
-	{
-		ZKClient zkClient = ZKClientBuilder.NewZKClient("localhost:2181")
-						 .SessionTimeout(10000)
-						 .ConnectionTimeout(10000)
-						 .Serializer(new SerializableSerializer())
-						 .Build();
-		Console.WriteLine("conneted ok!");
-		IZKDataListener dataListener = new ZKDataListener()
-			.DataCreatedOrChange((dataPath, data) =>
-			{
-				Console.WriteLine(dataPath + ":" + Convert.ToString(data));
-			})
-		   .DataDeleted((dataPath) =>
-			{
-				Console.WriteLine(dataPath);
-			});
-		zkClient.SubscribeDataChanges("/testUserNode", dataListener);
-		Thread.Sleep(int.MaxValue);
-		zkClient.Close();
-		zkClient = null;
-	}
+### 订阅节点的数据内容的变化
+	 using (ZKClient zkClient = ZKClientBuilder.NewZKClient(TestUtil.zkServers).Build())
+     {
+                var dataListener = new ZKDataListener();
+                dataListener.DataCreatedOrChangeHandler = async (dataPath, data) =>
+                  {
+                      await Task.Run(() =>
+                      {
+                          Console.WriteLine(dataPath + ":" + Convert.ToString(data));
+                      });
+                  };
+                dataListener.DataDeletedHandler = async (dataPath) =>
+                  {
+                      await Task.Run(() =>
+                      {
+                          Console.WriteLine(dataPath);
+                      });
+                  };
+                zkClient.SubscribeDataChanges("/testUserNode", dataListener);
+     }
 
     
 
@@ -174,61 +112,58 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
 	 
 ## 扩展功能
 
-###分布式锁
-
-    ZKClient zkClient = ZKClientBuilder.NewZKClient()
-                                .Servers("localhost:2181")
-                                .Build();
-    string lockPath = "/zk/lock";
-    zkClient.CreateRecursive(lockPath, null, CreateMode.Persistent);
-    //创建分布式锁， 非线程安全类，每个线程请创建单独实例。
-    ZKDistributedLock _lock = ZKDistributedLock.NewInstance(zkClient,lockPath);  
-    _lock.Lock(); //获得锁
-    
-    //do someting
-    
-    _lock.UnLock();//释放锁
+### 分布式锁
+     using (var _zkClient = new ZKClient(TestUtil.zkServers))
+     {    
+             await _zkClient.CreateRecursiveAsync("/zk/lock", null, CreateMode.Persistent);
+        
+             //创建分布式锁， 非线程安全类，每个线程请创建单独实例。
+             var _lock = new ZKDistributedLock(_zkClient, "/zk/lock");
+        
+             await _lock.LockAsync(); //获得锁
+        
+             //do someting
+        
+             await _lock.UnLockAsync();//释放锁
+    }
     
    
-###Leader选举
-    Leader选举是异步的，只需要调用selector.Start()就会启动并参与Leader选举，如果成为了主服务，则会执行监听器ZKLeaderSelectorListener。
-    
-    ZKClient zkClient = ZKClientBuilder.NewZKClient()
-                                .Servers("localhost:2181")
-                                .Build();
-    string lockPath = "/zk/leader";
-	ZKLeaderSelectorListener listener = new ZKLeaderSelectorListener()
-                                   .TakeLeadership((client, selector) =>
-                                   {
-                                      //在这里可以编写，成为主服务后需要做的事情。
-                                      Console.WriteLine("I am the leader-"+selector.GetLeader());
-                                   });
-    ZKLeaderSelector selector = new ZKLeaderSelector("service1", true, zkClient1, leaderPath, listener);
-    //启动并参与Leader选举
-    selector.Start();
-    
-    //获得当前主服务的ID
-    selector.GetLeader();
-    
-    //如果要退出Leader选举
-    selector.Close();
+### Leader选举  
+     using (var _zkClient = new ZKClient(TestUtil.zkServers))
+     {          
+             await _zkClient.CreateRecursiveAsync("/zk/leader", null, CreateMode.Persistent);
+            
+             var listener = new ZKLeaderSelectorListener();
+             listener.takeLeadership = async (client, selector) =>
+                                     {                 
+                                         Console.WriteLine("I am the leader-" + await selector.GetLeaderAsync());
+                                         selector.Close();
+                                     };
+             var selector = new ZKLeaderSelector("id", true, _zkClient, "/zk/leader", listener);
+            //启动并参与Leader选举
+             selector.Start();
+            
+             //获得当前主服务的ID
+             await selector.GetLeaderAsync();
+            
+             //如果要退出Leader选举
+             selector.Close();
+    }
     
          
-###分布式队列   
-    ZKClient zkClient = ZKClientBuilder.NewZKClient()
-                                .Servers("localhost:2181")
-                                .Build();
-    string rootPath = "/zk/queue";
-    zkClient.CreateRecursive(rootPath, null, CreateMode.Persistent);
-    
-    //创建分布式队列对象
-    ZKDistributedQueue<string> queue = new ZKDistributedQueue(zkClient, rootPath);
-    
-    queue.Offer("123");//放入元素
-    
-    string value = queue.Poll();//删除并获取顶部元素
-   
-    string value =  queue.Peek(); //获取顶部元素，不会删除
+### 分布式队列   
+     using (var _zkClient = new ZKClient(TestUtil.zkServers))
+     {
+             await _zkClient.CreateRecursiveAsync("/zk/queue", null, CreateMode.PERSISTENT);
+        
+             var queue = new ZKDistributedQueue<long>(new ZKClient(TestUtil.zkServers), "/zk/queue")
+           
+             await queue.OfferAsync("123");//放入元素
+        
+             var value = await queue.PollAsync();//删除并获取顶部元素
+       
+             var value =  await queue.PeekAsync(); //获取顶部元素，不会删除    
+     }
     
 	
 	
