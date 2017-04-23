@@ -113,12 +113,12 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
 ## 扩展功能
 
 ### 分布式锁
-     using (var _zkClient = new ZKClient(TestUtil.zkServers))
+     using (var zkClient = new ZKClient(TestUtil.zkServers))
      {    
-             await _zkClient.CreateRecursiveAsync("/zk/lock", null, CreateMode.Persistent);
+             await zkClient.CreateRecursiveAsync("/zk/lock", null, CreateMode.Persistent);
         
              //创建分布式锁， 非线程安全类，每个线程请创建单独实例。
-             var _lock = new ZKDistributedLock(_zkClient, "/zk/lock");
+             var _lock = new ZKDistributedLock(zkClient, "/zk/lock");
         
              await _lock.LockAsync(); //获得锁
         
@@ -129,9 +129,9 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
     
    
 ### Leader选举  
-     using (var _zkClient = new ZKClient(TestUtil.zkServers))
+     using (var zkClient = new ZKClient(TestUtil.zkServers))
      {          
-             await _zkClient.CreateRecursiveAsync("/zk/leader", null, CreateMode.Persistent);
+             await zkClient.CreateRecursiveAsync("/zk/leader", null, CreateMode.Persistent);
             
              var listener = new ZKLeaderSelectorListener();
              listener.takeLeadership = async (client, selector) =>
@@ -139,7 +139,7 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
                                          Console.WriteLine("I am the leader-" + await selector.GetLeaderAsync());
                                          selector.Close();
                                      };
-             var selector = new ZKLeaderSelector("id", true, _zkClient, "/zk/leader", listener);
+             var selector = new ZKLeaderSelector("id", true, zkClient, "/zk/leader", listener);
             //启动并参与Leader选举
              selector.Start();
             
@@ -152,9 +152,9 @@ A zookeeper client, that makes life a little easier. Implemented by .Net. Refere
     
          
 ### 分布式队列   
-     using (var _zkClient = new ZKClient(TestUtil.zkServers))
+     using (var zkClient = new ZKClient(TestUtil.zkServers))
      {
-             await _zkClient.CreateRecursiveAsync("/zk/queue", null, CreateMode.PERSISTENT);
+             await zkClient.CreateRecursiveAsync("/zk/queue", null, CreateMode.PERSISTENT);
         
              var queue = new ZKDistributedQueue<long>(new ZKClient(TestUtil.zkServers), "/zk/queue")
            

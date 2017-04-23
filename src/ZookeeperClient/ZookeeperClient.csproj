@@ -58,7 +58,6 @@
     <Compile Include="Leader\ZKLeaderSelector.cs" />
     <Compile Include="Leader\ZKLeaderSelectorListener.cs" />
     <Compile Include="Listener\ContentWatcher.cs" />
-    <Compile Include="Listener\Holder.cs" />
     <Compile Include="Listener\IZKChildListener.cs" />
     <Compile Include="Listener\IZKDataListener.cs" />
     <Compile Include="Listener\IZKStateListener.cs" />

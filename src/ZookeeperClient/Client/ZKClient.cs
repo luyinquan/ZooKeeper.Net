@@ -159,7 +159,7 @@ namespace ZookeeperClient.Client
                 await WatchForDataAsync(path);
             }).ConfigureAwait(false).GetAwaiter().GetResult();
 
-            LOG.Debug("Subscribed data changes for " + path);
+            LOG.Debug($"Subscribed data changes for {path}");
         }
 
         public void UnSubscribeDataChanges(string path, IZKDataListener dataListener)

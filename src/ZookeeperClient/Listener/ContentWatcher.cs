@@ -53,7 +53,7 @@ namespace ZookeeperClient.Listener
         {
             lock (_contentLock)
             {
-                LOG.Debug("Received new data: " + data);
+                LOG.Debug($"Received new data: {data}");
                 _content = new Holder<T>(data);
                 resetEvent.Set();
             }
@@ -68,5 +68,19 @@ namespace ZookeeperClient.Listener
             return _content.value;
         }
 
+    }
+
+    public class Holder<T>
+    {
+        public Holder()
+        {
+        }
+
+        public Holder(T value)
+        {
+            this.value = value;
+        }
+
+        public T value { set; get; }
     }
 }

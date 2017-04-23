@@ -31,7 +31,7 @@ namespace ZookeeperClient.Client
        
             public override string ToString()
             {
-                return "ZKEvent[" + description + "]";
+                return $"ZKEvent[{description}]";
             }
         }
 
@@ -54,20 +54,16 @@ namespace ZookeeperClient.Client
                 ZKEvent zkEvent = _events.Take();
                 Interlocked.Increment(ref _eventId);
                 int eventId = _eventId;
-                LOG.Debug("Delivering event #" + eventId + " " + zkEvent);
+                LOG.Debug($"Delivering event #{eventId}{zkEvent.ToString()}" );
                 try
                 {
                     zkEvent.Run();
                 }
-                catch (ThreadInterruptedException)
-                {
-                    tokenSource.Cancel();
-                }
                 catch (Exception e)
                 {
-                    LOG.Error("Error handling event " + zkEvent, e);
+                    LOG.Error($"Error handling event {zkEvent.ToString()}", e);
                 }
-                LOG.Debug("Delivering event #" + eventId + " done");
+                LOG.Debug($"Delivering event #{eventId} done");
             }
         }
 
@@ -75,7 +71,7 @@ namespace ZookeeperClient.Client
         {
             if (_zkTask != null && _zkTask.Status != TaskStatus.Canceled)
             {
-                LOG.Debug("New event: " + @event);
+                LOG.Debug($"New event: {@event.ToString()}");
                 _events.Add(@event);
             }
         }

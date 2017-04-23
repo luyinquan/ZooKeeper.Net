@@ -41,7 +41,7 @@ namespace ZookeeperClient.Connection
                 {
                     throw new Exception("zk client has already been started");
                 }
-                LOG.Debug("Creating new ZookKeeper instance to connect to " + servers + ".");
+                LOG.Debug($"Creating new ZookKeeper instance to connect to {servers}");
                 _zooKeeper = new ZooKeeper(servers, (int)_sessionTimeOut.TotalMilliseconds, watcher);
 
             }
@@ -59,7 +59,7 @@ namespace ZookeeperClient.Connection
             {
                 if (_zooKeeper != null)
                 {
-                    LOG.Debug("Closing ZooKeeper connected to " + servers);
+                    LOG.Debug($"Closing ZooKeeper connected to {servers}");
                     Task.Run(async () =>
                     {
                         await _zooKeeper.closeAsync().ConfigureAwait(false);
