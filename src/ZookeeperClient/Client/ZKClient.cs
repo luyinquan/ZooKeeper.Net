@@ -480,19 +480,31 @@ namespace ZookeeperClient.Client
 
         public async Task<T> GetDataAsync<T>(string path)
         {
-            return await GetDataAsync<T>(path, returnNullIfPathNotExists:false);
+            return (await GetZKDataAsync<T>(path, returnNullIfPathNotExists: false)).data;
         }
 
-        private async Task<T> GetDataAsync<T>(string path, bool returnNullIfPathNotExists)
+        public async Task<T> GetDataAsync<T>(string path, bool returnNullIfPathNotExists)
         {
-            T data = default(T);
+            return (await GetZKDataAsync<T>(path, returnNullIfPathNotExists: returnNullIfPathNotExists)).data;
+        }
+
+        public async Task<ZKData<T>> GetZKDataAsync<T>(string path)
+        {
+            return await GetZKDataAsync<T>(path, returnNullIfPathNotExists: false);
+        }
+
+        public async Task<ZKData<T>> GetZKDataAsync<T>(string path, bool returnNullIfPathNotExists)
+        {
+            ZKData<T> zkData = null;
             try
             {
-                byte[] bytes = await RetryUntilConnected(async () =>
-                {
-                    return (await _connection.GetDataAsync(path, HasListeners(path))).Data;
-                });
-                data = Derializable<T>(bytes);
+                DataResult dataResult = await RetryUntilConnected(async () =>
+                 {
+                     return (await _connection.GetDataAsync(path, HasListeners(path)));
+                 });
+                zkData = new ZKData<T>();
+                zkData.data = Derializable<T>(dataResult.Data);
+                zkData.stat = dataResult.Stat;
             }
             catch (NoNodeException e)
             {
@@ -501,7 +513,7 @@ namespace ZookeeperClient.Client
                     throw e;
                 }
             }
-            return data;
+            return zkData;
         }
 
         public async Task SetDataAsync<T>(string path, T data)
@@ -922,6 +934,7 @@ namespace ZookeeperClient.Client
             {
                 try
                 {
+                    FireSessionExpiredEvents(@event.getPath());
                     ReConnect(true);
                     FireNewSessionEvents();
                 }
@@ -1030,6 +1043,21 @@ namespace ZookeeperClient.Client
             catch (Exception e)
             {
                 LOG.Error("Failed to fire child changed event. Unable to getChildren.  ", e);
+            }
+        }
+
+        private void FireSessionExpiredEvents(string path)
+        {
+            foreach (var stateListener in _stateListeners)
+            {
+                _eventTask.Send(new ZKTask.ZKEvent($"New session event sent to {nameof(stateListener)}")
+                {
+                    Run = async () =>
+                    {
+                        if (stateListener.SessionExpiredHandler != null)
+                            await stateListener.SessionExpiredHandler(path);
+                    }
+                });
             }
         }
 

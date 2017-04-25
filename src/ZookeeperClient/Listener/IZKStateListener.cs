@@ -7,19 +7,25 @@ namespace ZookeeperClient.Listener
     public interface IZKStateListener
     {
         /// <summary>
-        /// 状态改变的回调函数
+        /// 状态改变
         /// state
         /// </summary>
         Func<KeeperState, Task> StateChangedHandler { set; get; }
 
         /// <summary>
-        /// 会话创建的回调函数
+        /// 会话失效
+        /// path
+        /// </summary>
+        Func<string,Task> SessionExpiredHandler { set; get; }
+
+        /// <summary>
+        /// 会话创建
         /// any ephemeral nodes here.
         /// </summary>
         Func<Task> NewSessionHandler { set; get; }
 
         /// <summary>
-        ///会话出错的回调函数
+        ///会话出错
         /// failure handling e.g.retry to connect or pass the error up
         /// error
         /// </summary>

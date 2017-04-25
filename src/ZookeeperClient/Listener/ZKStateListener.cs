@@ -8,6 +8,8 @@ namespace ZookeeperClient.Listener
     {
         public Func<KeeperState, Task> StateChangedHandler { set; get; }
 
+        public Func<string, Task> SessionExpiredHandler { set; get; }
+
         public Func<Task> NewSessionHandler { set; get; }
 
         public Func<Exception, Task> SessionEstablishmentErrorHandler { set; get; }

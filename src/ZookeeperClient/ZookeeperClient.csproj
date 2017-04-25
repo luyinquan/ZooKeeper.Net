@@ -52,6 +52,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client\ZKData.cs" />
     <Compile Include="Client\ZKNode.cs" />
     <Compile Include="Leader\ILeaderSelector.cs" />
     <Compile Include="Leader\IZKLeaderSelectorListener.cs" />
