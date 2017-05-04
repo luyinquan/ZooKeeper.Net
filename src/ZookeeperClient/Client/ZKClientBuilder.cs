@@ -1,7 +1,7 @@
 ﻿using System;
-using ZookeeperClient.Serialize;
+using ZooKeeperClient.Serialize;
 
-namespace ZookeeperClient.Client
+namespace ZooKeeperClient.Client
 {
     /// <summary>
     /// ZKClient辅助创建类
@@ -15,7 +15,7 @@ namespace ZookeeperClient.Client
         private int retryTimeout = 60000;
 
         /// <summary>
-        /// 创建ZookeeperClient
+        /// 创建ZooKeeperClient
         /// </summary>
         /// <returns></returns>
         public static ZKClientBuilder NewZKClient()
@@ -25,7 +25,7 @@ namespace ZookeeperClient.Client
         }
 
         /// <summary>
-        /// 创建ZookeeperClient
+        /// 创建ZooKeeperClient
         /// </summary>
         /// <param name="servers"></param>
         /// <returns></returns>
@@ -37,7 +37,7 @@ namespace ZookeeperClient.Client
         }
 
         /// <summary>
-        /// 组件并初始化ZookeeperClient
+        /// 组件并初始化ZooKeeperClient
         /// </summary>
         /// <returns></returns>
         public ZKClient Build()

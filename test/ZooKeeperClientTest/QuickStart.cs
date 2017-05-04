@@ -1,21 +1,21 @@
-﻿using NUnit.Framework;
-using org.apache.zookeeper;
+﻿using org.apache.zookeeper;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using ZookeeperClient.Client;
-using ZookeeperClient.Listener;
-using ZookeeperClient.Util;
+using Xunit;
+using ZooKeeperClient.Client;
+using ZooKeeperClient.Listener;
+using ZooKeeperClient.Util;
 
 
-namespace ZookeeperClient.Test
+namespace ZooKeeperClient.Test
 {
     public class QuickStart
     {
         /// <summary>
         /// 创建会话
         /// </summary>
-        [Test]
+        [Fact]
         public void CreateSession()
         {
             using (ZKClient zkClient = ZKClientBuilder.NewZKClient(TestUtil.zkServers).Build())
@@ -27,7 +27,7 @@ namespace ZookeeperClient.Test
         /// <summary>
         /// 创建节点
         /// </summary>
-        [Test]
+        [Fact]
         public async Task CreateNode()
         {
             using (ZKClient zkClient = ZKClientBuilder.NewZKClient(TestUtil.zkServers).Build())
@@ -45,7 +45,7 @@ namespace ZookeeperClient.Test
         /// <summary>
         /// 获取节点中的数据
         /// </summary>
-        [Test]
+        [Fact]
         public async Task GetData()
         {
             using (ZKClient zkClient = ZKClientBuilder.NewZKClient(TestUtil.zkServers).Build())
@@ -59,7 +59,7 @@ namespace ZookeeperClient.Test
         /// <summary>
         /// 判断节点是否存在
         /// </summary>
-        [Test]
+        [Fact]
         public async Task Exists()
         {
             using (ZKClient zkClient = ZKClientBuilder.NewZKClient(TestUtil.zkServers).Build())
@@ -73,7 +73,7 @@ namespace ZookeeperClient.Test
         /// <summary>
         /// 删除节点
         /// </summary>
-        [Test]
+        [Fact]
         public async Task Delete()
         {
             using (ZKClient zkClient = ZKClientBuilder.NewZKClient(TestUtil.zkServers).Build())
@@ -92,7 +92,7 @@ namespace ZookeeperClient.Test
         /// <summary>
         /// 更新数据
         /// </summary>
-        [Test]
+        [Fact]
         public async Task SetData()
         {
             using (ZKClient zkClient = ZKClientBuilder.NewZKClient(TestUtil.zkServers).Build())
@@ -109,7 +109,7 @@ namespace ZookeeperClient.Test
         /// <summary>
         /// 订阅节点的信息改变（创建节点，删除节点，添加子节点）
         /// </summary>
-        [Test]
+        [Fact]
         public void SubscribeChildChanges()
         {
             using (ZKClient zkClient = ZKClientBuilder.NewZKClient(TestUtil.zkServers).Build())
@@ -142,7 +142,7 @@ namespace ZookeeperClient.Test
         /// <summary>
         /// 订阅节点的数据内容的变化
         /// </summary>
-        [Test]
+        [Fact]
         public void SubscribeDataChanges()
         {
             using (ZKClient zkClient = ZKClientBuilder.NewZKClient(TestUtil.zkServers).Build())
@@ -190,7 +190,7 @@ namespace ZookeeperClient.Test
         /// <summary>
         /// 客户端状态监听
         /// </summary>
-        [Test]
+        [Fact]
         public void SubscribeStateChanges()
         {
             using (ZKClient zkClient = ZKClientBuilder.NewZKClient(TestUtil.zkServers).Build())
@@ -232,7 +232,6 @@ namespace ZookeeperClient.Test
         }
     }
 
-    [Serializable]
     public class User
     {
         public int Id { set; get; }

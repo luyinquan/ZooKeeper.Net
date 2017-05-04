@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using static org.apache.zookeeper.Watcher.Event;
 
-namespace ZookeeperClient.Listener
+namespace ZooKeeperClient.Listener
 {
     public class ZKStateListener : IZKStateListener
     {

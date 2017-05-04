@@ -1,20 +1,20 @@
 ﻿using log4net;
-using NUnit.Framework;
 using org.apache.zookeeper;
 using org.apache.zookeeper.data;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
-using ZookeeperClient.Client;
-using ZookeeperClient.Util;
+using Xunit;
+using ZooKeeperClient.Client;
+using ZooKeeperClient.Util;
 using static org.apache.zookeeper.ZooDefs;
 
-namespace ZookeeperClient.Test
+namespace ZooKeeperClient.Test
 {
-    public class ZKAuthTest
+    public class ZKAuthTest : IDisposable
     {
-        private static string testNode = "/test";
+        private static string testNode = "/testAuth";
         private static string readAuth = "read-user:123456";
         private static string writeAuth = "write-user:123456";
         private static string deleteAuth = "delete-user:123456";
@@ -25,27 +25,23 @@ namespace ZookeeperClient.Test
         protected ZKClient zkClient;
         protected static readonly ILog LOG = LogManager.GetLogger(typeof(ZKAuthTest));
 
-        [OneTimeSetUp]
-        public void SetUp()
+        public ZKAuthTest()
         {
             LOG.Info("------------ BEFORE -------------");
             zkClient = new ZKClient(TestUtil.zkServers);
-
         }
 
-        [OneTimeTearDown]
-        public void TearDown()
+        public void Dispose()
         {
             LOG.Info("------------ AFTER -------------");
             zkClient.Close();
         }
 
 
-
-        [Test]
+        [Fact]
         public async Task TestAuth()
         {
-            zkClient.AddAuthInfo(digest, Encoding.Default.GetBytes(allAuth));
+            zkClient.AddAuthInfo(digest, Encoding.UTF8.GetBytes(allAuth));
             if (await zkClient.ExistsAsync(testNode))
             {
                 await zkClient.DeleteAsync(testNode);
@@ -67,14 +63,14 @@ namespace ZookeeperClient.Test
 
             try
             {
-                zkClient.AddAuthInfo(digest, Encoding.Default.GetBytes(adminAuth));
+                zkClient.AddAuthInfo(digest, Encoding.UTF8.GetBytes(adminAuth));
                 await zkClient.GetDataAsync<string>(testNode);//admin权限与read权限不匹配，读取也会出错
             }
             catch (Exception e) { }
 
             try
             {
-                zkClient.AddAuthInfo(digest, Encoding.Default.GetBytes(readAuth));
+                zkClient.AddAuthInfo(digest, Encoding.UTF8.GetBytes(readAuth));
                 await zkClient.GetDataAsync<string>(testNode);//只有read权限的认证信息，才能正常读取
             }
             catch (Exception e) { }
@@ -87,21 +83,21 @@ namespace ZookeeperClient.Test
 
             try
             {
-                zkClient.AddAuthInfo(digest, Encoding.Default.GetBytes(writeAuth));
+                zkClient.AddAuthInfo(digest, Encoding.UTF8.GetBytes(writeAuth));
                 await zkClient.SetDataAsync(testNode, "new-data");//加入认证信息后,写入正常
             }
             catch (Exception e) { }
 
             try
             {
-                zkClient.AddAuthInfo(digest, Encoding.Default.GetBytes(readAuth));
+                zkClient.AddAuthInfo(digest, Encoding.UTF8.GetBytes(readAuth));
                 await zkClient.GetDataAsync<string>(testNode);//读取新值验证
             }
             catch (Exception e) { }
 
             try
             {
-                zkClient.AddAuthInfo(digest, Encoding.Default.GetBytes(deleteAuth));
+                zkClient.AddAuthInfo(digest, Encoding.UTF8.GetBytes(deleteAuth));
                 await zkClient.DeleteAsync(testNode);
             }
             catch (Exception e) { }
@@ -110,8 +106,8 @@ namespace ZookeeperClient.Test
             //所以要修改节点的ACL属性，必须同时具备read、admin二种权限        
             try
             {
-                zkClient.AddAuthInfo(digest, Encoding.Default.GetBytes(adminAuth));
-                zkClient.AddAuthInfo(digest, Encoding.Default.GetBytes(readAuth));
+                zkClient.AddAuthInfo(digest, Encoding.UTF8.GetBytes(adminAuth));
+                zkClient.AddAuthInfo(digest, Encoding.UTF8.GetBytes(readAuth));
 
                 List<ACL> acls1 = new List<ACL>();
                 acls1.Add(new ACL((int)Perms.ALL, new Id(digest, adminAuth)));

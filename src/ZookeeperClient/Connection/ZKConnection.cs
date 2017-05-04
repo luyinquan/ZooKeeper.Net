@@ -6,7 +6,7 @@ using org.apache.zookeeper;
 using System.Threading.Tasks;
 using static org.apache.zookeeper.ZooDefs;
 
-namespace ZookeeperClient.Connection
+namespace ZooKeeperClient.Connection
 {
     public class ZKConnection : IZKConnection
     {

@@ -1,6 +1,6 @@
 ﻿using org.apache.zookeeper.data;
 
-namespace ZookeeperClient.Client
+namespace ZooKeeperClient.Client
 {
     public class ZKData<T>
     {

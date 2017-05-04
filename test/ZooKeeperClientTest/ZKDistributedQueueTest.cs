@@ -1,15 +1,15 @@
 ﻿using log4net;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using ZookeeperClient.Queue;
-using ZookeeperClient.Util;
-using ZookeeperClient.Client;
+using ZooKeeperClient.Queue;
+using ZooKeeperClient.Util;
+using ZooKeeperClient.Client;
 using System.Threading.Tasks;
 using org.apache.zookeeper;
+using Xunit;
 
-namespace ZookeeperClient.Test
+namespace ZooKeeperClient.Test
 {
     public class ZKDistributedQueueTest
     {
@@ -17,8 +17,7 @@ namespace ZookeeperClient.Test
         private string queuePath = "/zk/queue";
         private ZKClient _zkClient;
 
-        [Test]
-        [Timeout(15000)]
+        [Fact]
         public async Task TestDistributedQueue()
         {
             using (_zkClient = new ZKClient(TestUtil.zkServers))
@@ -33,12 +32,11 @@ namespace ZookeeperClient.Test
                 Assert.True((17 == await queue.PollAsync()));
                 Assert.True((18 == await queue.PollAsync()));
                 Assert.True((19 == await queue.PollAsync()));
-                Assert.Zero(await queue.PollAsync());
+                Assert.True(0 == await queue.PollAsync());
             }
         }
 
-        [Test]
-        [Timeout(15000)]
+        [Fact]
         public async Task TestPeek()
         {
             using (_zkClient = new ZKClient(TestUtil.zkServers))
@@ -55,13 +53,11 @@ namespace ZookeeperClient.Test
                 Assert.True((17 == await queue.PollAsync()));
                 Assert.True((18 == await queue.PeekAsync()));
                 Assert.True((18 == await queue.PollAsync()));
-                Assert.Zero(await queue.PeekAsync());
-
+                Assert.True(0 == await queue.PollAsync());
             }
         }
 
-        [Test]
-        [Timeout(30000)]
+        [Fact]
         public async Task TestMultipleReadingThreads()
         {
             using (_zkClient = new ZKClient(TestUtil.zkServers))

@@ -4,11 +4,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using ZookeeperClient.Client;
-using ZookeeperClient.Listener;
+using ZooKeeperClient.Client;
+using ZooKeeperClient.Listener;
 using static org.apache.zookeeper.KeeperException;
 
-namespace ZookeeperClient.Lock
+namespace ZooKeeperClient.Lock
 {
     /// <summary>
     /// 分布式锁

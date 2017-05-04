@@ -5,17 +5,17 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using ZookeeperClient.Connection;
-using ZookeeperClient.Listener;
-using ZookeeperClient.Serialize;
-using ZookeeperClient.Util;
+using ZooKeeperClient.Connection;
+using ZooKeeperClient.Listener;
+using ZooKeeperClient.Serialize;
+using ZooKeeperClient.Util;
 using System.Threading.Tasks;
 using static org.apache.zookeeper.Watcher.Event;
 using static org.apache.zookeeper.ZooDefs;
 using org.apache.zookeeper.data;
 using static org.apache.zookeeper.KeeperException;
 
-namespace ZookeeperClient.Client
+namespace ZooKeeperClient.Client
 {
     /// <summary>
     /// ZooKeeper客户端
@@ -46,7 +46,7 @@ namespace ZookeeperClient.Client
         private volatile bool _closed;
         private ZKTask _eventTask;
 
-        #region ZookeeperClient
+        #region ZooKeeperClient
         public ZKClient(string serverstring) : this(serverstring, TimeSpan.FromMilliseconds(10000))
         {
         }
@@ -64,7 +64,7 @@ namespace ZookeeperClient.Client
         }
 
         /// <summary>
-        /// Most operations done through this {@link org.I0Itec.zkclient.ZookeeperClient}
+        /// Most operations done through this {@link org.I0Itec.zkclient.ZooKeeperClient}
         /// are retried in cases like
         /// connection loss with the Zookeeper servers.During such failures, this
         /// <code>operationRetryTimeout</code> decides the maximum amount of time, in milli seconds, each
@@ -94,7 +94,7 @@ namespace ZookeeperClient.Client
         }
 
         /// <summary>
-        /// Most operations done through this {@link org.I0Itec.zkclient.ZookeeperClient} are retried in cases like
+        /// Most operations done through this {@link org.I0Itec.zkclient.ZooKeeperClient} are retried in cases like
         /// connection loss with the Zookeeper servers.During such failures, this
         /// <code>operationRetryTimeout</code> decides the maximum amount of time, in milli seconds, each
         /// operation is retried.A value lesser than 0 is considered as
@@ -464,7 +464,7 @@ namespace ZookeeperClient.Client
             }
         }
 
-        private byte[] Serialize(object data)
+        private byte[] Serialize<T>(T data)
         {
             return _zkSerializer.Serialize(data);
         }
@@ -475,7 +475,7 @@ namespace ZookeeperClient.Client
             {
                 return default(T);
             }
-            return (T)_zkSerializer.Deserialize(data);
+            return _zkSerializer.Deserialize<T>(data);
         }
 
         public async Task<T> GetDataAsync<T>(string path)
@@ -662,7 +662,7 @@ namespace ZookeeperClient.Client
             {
                 return;
             }
-            LOG.Debug("Closing ZookeeperClient...");
+            LOG.Debug("Closing ZooKeeperClient...");
 
             lock (_zkEventLock)
             {
@@ -671,7 +671,7 @@ namespace ZookeeperClient.Client
                 _connection.Close();
                 _closed = true;
             }
-            LOG.Debug("Closing ZookeeperClient...done");
+            LOG.Debug("Closing ZooKeeperClient...done");
         }
 
         /// <summary>
@@ -687,7 +687,7 @@ namespace ZookeeperClient.Client
             {
                 if (_closed)
                 {
-                    throw new Exception("ZookeeperClient already closed!");
+                    throw new Exception("ZooKeeperClient already closed!");
                 }
                 try
                 {
@@ -722,7 +722,7 @@ namespace ZookeeperClient.Client
             {
                 if (_closed)
                 {
-                    throw new Exception("ZookeeperClient already closed!");
+                    throw new Exception("ZooKeeperClient already closed!");
                 }
                 try
                 {
@@ -811,16 +811,23 @@ namespace ZookeeperClient.Client
             WaitUntilConnected(_operationRetryTimeout);
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
+       //MethodImpl(MethodImplOptions.Synchronized)]
         private void SetCurrentState(KeeperState state)
         {
-            _currentState = state;
+            lock (this)
+            {
+                _currentState = state;
+            }        
         }
 
-        [MethodImpl(MethodImplOptions.Synchronized)]
+
+        //MethodImpl(MethodImplOptions.Synchronized)]
         public KeeperState GetCurrentState()
         {
-            return _currentState;
+            lock (this)
+            {
+                return _currentState;
+            }
         }
 
         private AutoResetEvent _stateChangedCondition = new AutoResetEvent(false);
@@ -972,7 +979,7 @@ namespace ZookeeperClient.Client
         {
             foreach (var dataListener in dataListeners)
             {
-                _eventTask.Send(new ZKTask.ZKEvent($"Data of  {path} changed sent to  {nameof(dataListener)}")
+                _eventTask.Send(new ZKTask.ZKEvent()
                 {
                     Run = async () =>
                     {
@@ -1011,7 +1018,7 @@ namespace ZookeeperClient.Client
                 // reinstall the watch
                 foreach (var childListener in childListeners)
                 {
-                    _eventTask.Send(new ZKTask.ZKEvent($"Children of  {path} changed sent to {nameof(childListener)}" )
+                    _eventTask.Send(new ZKTask.ZKEvent()
                     {
                         Run = async () =>
                         {
@@ -1050,7 +1057,7 @@ namespace ZookeeperClient.Client
         {
             foreach (var stateListener in _stateListeners)
             {
-                _eventTask.Send(new ZKTask.ZKEvent($"New session event sent to {nameof(stateListener)}")
+                _eventTask.Send(new ZKTask.ZKEvent()
                 {
                     Run = async () =>
                     {
@@ -1065,7 +1072,7 @@ namespace ZookeeperClient.Client
         {
             foreach (var stateListener in _stateListeners)
             {
-                _eventTask.Send(new ZKTask.ZKEvent($"New session event sent to {nameof(stateListener)}")
+                _eventTask.Send(new ZKTask.ZKEvent()
                 {
                     Run = async () =>
                     {
@@ -1080,7 +1087,7 @@ namespace ZookeeperClient.Client
         {
             foreach (var stateListener in _stateListeners)
             {
-                _eventTask.Send(new ZKTask.ZKEvent($"State changed to {Convert.ToString(state)} sent to {(stateListener)}")
+                _eventTask.Send(new ZKTask.ZKEvent()
                 {
                     Run = async () =>
                     {
@@ -1095,7 +1102,7 @@ namespace ZookeeperClient.Client
         {
             foreach (var stateListener in _stateListeners)
             {
-                _eventTask.Send(new ZKTask.ZKEvent($"State establishment to {error.Message } sent to {(stateListener)}" )
+                _eventTask.Send(new ZKTask.ZKEvent()
                 {
                     Run = async () =>
                      {

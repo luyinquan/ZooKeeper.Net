@@ -1,15 +1,15 @@
 ﻿using log4net;
-using NUnit.Framework;
 using org.apache.zookeeper;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using ZookeeperClient.Client;
-using ZookeeperClient.Leader;
-using ZookeeperClient.Util;
+using Xunit;
+using ZooKeeperClient.Client;
+using ZooKeeperClient.Leader;
+using ZooKeeperClient.Util;
 
-namespace ZookeeperClient.Test
+namespace ZooKeeperClient.Test
 {
     public class ZKLeaderSelectorTest
     {
@@ -20,7 +20,7 @@ namespace ZookeeperClient.Test
         /// <summary>
         /// 测试分布式锁
         /// </summary>
-        [Test]
+       [Fact]
         public async Task TestZKLeaderSeletor()
         {
             LOG.Info("------------ BEFORE -------------");
@@ -54,7 +54,8 @@ namespace ZookeeperClient.Test
                                Console.WriteLine(name + ":waiting");
                                count.Wait();
                            }
-                           catch (ThreadInterruptedException)
+                           //catch (ThreadInterruptedException)
+                           catch (Exception)
                            {
                            }
                            _selector.Start();
@@ -63,7 +64,8 @@ namespace ZookeeperClient.Test
                            {
                                count1.Wait();
                            }
-                           catch (ThreadInterruptedException)
+                           //catch (ThreadInterruptedException)
+                           catch (Exception)
                            {
                            }
 
@@ -79,7 +81,7 @@ namespace ZookeeperClient.Test
             LOG.Info("------------ AFTER -------------");
         }
 
-        [Test]
+       [Fact]
         public async Task TestZKLeaderSeletor1()
         {
             LOG.Info("------------ BEFORE -------------");
@@ -97,7 +99,8 @@ namespace ZookeeperClient.Test
                          {
                              await Task.Delay(1000);
                          }
-                         catch (ThreadInterruptedException)
+                         //catch (ThreadInterruptedException)
+                         catch (Exception)
                          {
                          }
                          msgList.Add("server1 I am the leader");
@@ -121,7 +124,8 @@ namespace ZookeeperClient.Test
                          {
                              await Task.Delay(1000);
                          }
-                         catch (ThreadInterruptedException)
+                         //catch (ThreadInterruptedException)
+                         catch (Exception)
                          {
                          }
                          msgList.Add("server2 I am the leader");

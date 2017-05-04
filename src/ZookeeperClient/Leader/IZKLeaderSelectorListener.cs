@@ -1,6 +1,6 @@
-﻿using ZookeeperClient.Client;
+﻿using ZooKeeperClient.Client;
 
-namespace ZookeeperClient.Leader
+namespace ZooKeeperClient.Leader
 {
     public interface IZKLeaderSelectorListener
     {

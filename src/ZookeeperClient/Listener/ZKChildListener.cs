@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ZookeeperClient.Listener
+namespace ZooKeeperClient.Listener
 {
     public class ZKChildListener: IZKChildListener
     {

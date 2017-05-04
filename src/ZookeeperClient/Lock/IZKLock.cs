@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace ZookeeperClient.Lock
+namespace ZooKeeperClient.Lock
 {
     public interface IZKLock
     {

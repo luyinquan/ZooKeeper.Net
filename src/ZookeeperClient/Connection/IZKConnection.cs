@@ -3,7 +3,7 @@ using org.apache.zookeeper.data;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ZookeeperClient.Connection
+namespace ZooKeeperClient.Connection
 {
     public interface IZKConnection
     {

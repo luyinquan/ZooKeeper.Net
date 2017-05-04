@@ -2,12 +2,12 @@
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using ZookeeperClient.Client;
-using ZookeeperClient.Listener;
-using ZookeeperClient.Lock;
+using ZooKeeperClient.Client;
+using ZooKeeperClient.Listener;
+using ZooKeeperClient.Lock;
 using static org.apache.zookeeper.Watcher.Event;
 
-namespace ZookeeperClient.Leader
+namespace ZooKeeperClient.Leader
 {
     /// <summary>
     /// 选举Leader
@@ -39,7 +39,7 @@ namespace ZookeeperClient.Leader
         /// </summary>
         /// <param name="id"> 每个Leader选举的参与者都有一个ID标识，用于区分各个参与者。</param>
         /// <param name="autoRequeue"> 是否在由于网络问题造成与服务器断开连接后，自动参与到选举队列中。</param>
-        /// <param name="client"> ZookeeperClient</param>
+        /// <param name="client"> ZooKeeperClient</param>
         /// <param name="leaderPath"> 选举的路径</param>
         /// <param name="listener"> 成为Leader后执行的的监听器</param>
         public ZKLeaderSelector(string id, bool autoRequeue, ZKClient zkClient, string leaderPath, IZKLeaderSelectorListener listener)
@@ -84,28 +84,31 @@ namespace ZookeeperClient.Leader
         /// <summary>
         /// 重新添加当前线程到选举队列
         /// </summary>
-        [MethodImpl(MethodImplOptions.Synchronized)]
+        //[MethodImpl(MethodImplOptions.Synchronized)]
         public void Requeue()
         {
-            if (state != (int)State.STARTED)
+            lock (this)
             {
-                throw new Exception("close() has already been called");
-            }
+                if (state != (int)State.STARTED)
+                {
+                    throw new Exception("close() has already been called");
+                }
 
-            isInterrupted = false;
-            if (task != null)
-            {
-                cancellationTokenSource.Cancel();
-                cancellationTokenSource = new CancellationTokenSource();
-            }              
-            task = Task.Run(async () =>
-             {
-                 if (!cancellationTokenSource.IsCancellationRequested)
+                isInterrupted = false;
+                if (task != null)
+                {
+                    cancellationTokenSource.Cancel();
+                    cancellationTokenSource = new CancellationTokenSource();
+                }
+                task = Task.Run(async () =>
                  {
-                     await _lock.LockAsync();
-                     listener.TakeLeadership(_zkClient, this);
-                 }
-             }, cancellationTokenSource.Token);
+                     if (!cancellationTokenSource.IsCancellationRequested)
+                     {
+                         await _lock.LockAsync();
+                         listener.TakeLeadership(_zkClient, this);
+                     }
+                 }, cancellationTokenSource.Token);
+            }
         }
 
         /// <summary>
@@ -137,31 +140,36 @@ namespace ZookeeperClient.Leader
         /// <summary>
         /// 终止等待成为Leader
         /// </summary>
-        [MethodImpl(MethodImplOptions.Synchronized)]
+        //[MethodImpl(MethodImplOptions.Synchronized)]
         public void InterruptLeadership()
         {
-            cancellationTokenSource.Cancel();
-            isInterrupted = true;
+            lock (this)
+            {
+                cancellationTokenSource.Cancel();
+                isInterrupted = true;
+            }
         }
 
         /// <summary>
         /// 关闭Leader选举
         /// </summary>
-        [MethodImpl(MethodImplOptions.Synchronized)]
+        //[MethodImpl(MethodImplOptions.Synchronized)]
         public void Close()
         {
-            if ((int)State.STARTED != Interlocked.CompareExchange(ref state, (int)State.CLOSED, (int)State.STARTED))
+            lock (this)
             {
-                throw new Exception("Already closed or has not been started");
-            }
-            Task.Run(async () =>
-            {
-                await _lock.UnLockAsync().ConfigureAwait(false);
-            }).ConfigureAwait(false).GetAwaiter().GetResult();
+                if ((int)State.STARTED != Interlocked.CompareExchange(ref state, (int)State.CLOSED, (int)State.STARTED))
+                {
+                    throw new Exception("Already closed or has not been started");
+                }
+                Task.Run(async () =>
+                {
+                    await _lock.UnLockAsync().ConfigureAwait(false);
+                }).ConfigureAwait(false).GetAwaiter().GetResult();
 
-            _zkClient.UnSubscribeStateChanges(stateListener);
-            cancellationTokenSource.Cancel();
-            task.Wait();
+                _zkClient.UnSubscribeStateChanges(stateListener);
+                cancellationTokenSource.Cancel();
+            }
         }
 
         public void Dispose()

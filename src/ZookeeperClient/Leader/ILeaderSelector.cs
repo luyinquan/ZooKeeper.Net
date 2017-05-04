@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace ZookeeperClient.Leader
+namespace ZooKeeperClient.Leader
 {
     public interface ILeaderSelector : IDisposable
     {

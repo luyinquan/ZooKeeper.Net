@@ -1,11 +1,10 @@
-﻿using NUnit.Framework;
-using ZookeeperClient.Connection;
-using ZookeeperClient.Util;
+﻿using ZooKeeperClient.Connection;
+using ZooKeeperClient.Util;
 using org.apache.zookeeper;
 using System.Threading.Tasks;
-using System;
+using Xunit;
 
-namespace ZookeeperClient.Test
+namespace ZooKeeperClient.Test
 {
     public class TestWatcher : Watcher
     {
@@ -27,7 +26,7 @@ namespace ZookeeperClient.Test
         }
 
 
-        [Test]
+        [Fact]
         public async Task TestSequentials()
         {
             _connection = EstablishConnection();

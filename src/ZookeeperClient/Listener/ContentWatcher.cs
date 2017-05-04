@@ -1,10 +1,10 @@
 ﻿using log4net;
 using System.Threading;
 using System.Threading.Tasks;
-using ZookeeperClient.Client;
+using ZooKeeperClient.Client;
 using static org.apache.zookeeper.KeeperException;
 
-namespace ZookeeperClient.Listener
+namespace ZooKeeperClient.Listener
 {
     public class ContentWatcher<T>
     {

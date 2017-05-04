@@ -1,16 +1,16 @@
 ﻿using log4net;
-using NUnit.Framework;
 using org.apache.zookeeper;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using ZookeeperClient.Client;
-using ZookeeperClient.Lock;
-using ZookeeperClient.Util;
+using Xunit;
+using ZooKeeperClient.Client;
+using ZooKeeperClient.Lock;
+using ZooKeeperClient.Util;
 
 
-namespace ZookeeperClient.Test
+namespace ZooKeeperClient.Test
 {
     public class ZKDistributedLockTest
     {
@@ -21,7 +21,7 @@ namespace ZookeeperClient.Test
         /// <summary>
         /// 测试分布式锁
         /// </summary>
-        [Test]
+       [Fact]
         public async Task TestDistributedLock()
         {
             LOG.Info("------------ BEFORE -------------");
@@ -65,7 +65,8 @@ namespace ZookeeperClient.Test
                          await _lock.UnLockAsync();
                          Console.WriteLine("thread " + integer + " unlock........");
                      }
-                     catch (ThreadInterruptedException)
+                     //catch (ThreadInterruptedException)
+                     catch (Exception)
                      {
                      }
                  });

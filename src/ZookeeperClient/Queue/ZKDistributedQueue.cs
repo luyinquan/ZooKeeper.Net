@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using ZookeeperClient.Client;
+using ZooKeeperClient.Client;
 using static org.apache.zookeeper.KeeperException;
 
-namespace ZookeeperClient.Queue
+namespace ZooKeeperClient.Queue
 {
     /// <summary>
     /// 分布式队列
@@ -35,7 +35,7 @@ namespace ZookeeperClient.Queue
         /// <summary>
         /// 创建分布式队列
         /// </summary>
-        /// <param name="zkClient">ZookeeperClient客户端</param>
+        /// <param name="zkClient">ZooKeeperClient客户端</param>
         /// <param name="root">分布式队列根路径</param>
         public ZKDistributedQueue(ZKClient zkClient, string root)
         {

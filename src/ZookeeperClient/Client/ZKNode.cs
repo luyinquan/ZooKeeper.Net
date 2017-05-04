@@ -2,7 +2,7 @@
 using org.apache.zookeeper.data;
 using System.Collections.Generic;
 
-namespace ZookeeperClient.Client
+namespace ZooKeeperClient.Client
 {
     public class ZKNode
     {

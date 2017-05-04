@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>    
+    <TargetFramework>netcoreapp1.1</TargetFramework>    
+    <AssemblyName>ZooKeeperClient.Test</AssemblyName>    
+    <RootNamespace>ZooKeeperClient.Test</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\ZooKeeperClientTest\ContentWatcherTest.cs" Link="ContentWatcherTest.cs" />
+    <Compile Include="..\ZooKeeperClientTest\QuickStart.cs" Link="QuickStart.cs" />
+    <Compile Include="..\ZooKeeperClientTest\Util\TestUtil.cs" Link="Util\TestUtil.cs" />
+    <Compile Include="..\ZooKeeperClientTest\ZKAuthTest.cs" Link="ZKAuthTest.cs" />
+    <Compile Include="..\ZooKeeperClientTest\ZKClientSerializationTest.cs" Link="ZKClientSerializationTest.cs" />
+    <Compile Include="..\ZooKeeperClientTest\ZKConnectionTest.cs" Link="ZKConnectionTest.cs" />
+    <Compile Include="..\ZooKeeperClientTest\ZKDistributedLockTest.cs" Link="ZKDistributedLockTest.cs" />
+    <Compile Include="..\ZooKeeperClientTest\ZKDistributedQueueTest.cs" Link="ZKDistributedQueueTest.cs" />
+    <Compile Include="..\ZooKeeperClientTest\ZKLeaderSelectorTest.cs" Link="ZKLeaderSelectorTest.cs" />
+    <Compile Include="..\ZooKeeperClientTest\ZKPathUtilTest.cs" Link="ZKPathUtilTest.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="log4net" Version="2.0.8" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
+    <PackageReference Include="xunit" Version="2.2.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.2.0" />
+    <PackageReference Include="ZooKeeperNetEx" Version="3.4.9.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\ZooKeeperClient_Core\ZooKeeperClientCore.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Util\" />
+  </ItemGroup>
+
+</Project>

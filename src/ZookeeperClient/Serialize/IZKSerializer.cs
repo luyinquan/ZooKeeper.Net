@@ -1,9 +1,9 @@
-﻿namespace ZookeeperClient.Serialize
+﻿namespace ZooKeeperClient.Serialize
 {
     public interface IZKSerializer
     {
-        byte[] Serialize(object data);
+        byte[] Serialize<T>(T obj);
 
-        object Deserialize(byte[] bytes);
+        T Deserialize<T>(byte[] bytes);
     }
 }

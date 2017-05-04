@@ -1,14 +1,14 @@
-﻿using NUnit.Framework;
-using System;
+﻿using System;
 using System.Threading.Tasks;
-using ZookeeperClient.Client;
-using ZookeeperClient.Util;
+using Xunit;
+using ZooKeeperClient.Client;
+using ZooKeeperClient.Util;
 
-namespace ZookeeperClient.Test
+namespace ZooKeeperClient.Test
 {
     public class ZKClientSerializationTest
     {
-        [Test]
+        [Fact]
         public async Task TestBytes()
         {
             using (ZKClient _zkClient = new ZKClient(TestUtil.zkServers))
@@ -21,7 +21,7 @@ namespace ZookeeperClient.Test
             }
         }
 
-        [Test]
+        [Fact]
         public async Task TestSerializables()
         {
             using (ZKClient _zkClient = new ZKClient(TestUtil.zkServers))

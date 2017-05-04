@@ -1,0 +1,71 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <AssemblyName>ZooKeeperClient</AssemblyName>
+    <RootNamespace>ZooKeeperClient</RootNamespace>
+    <ApplicationIcon />
+    <OutputTypeEx>library</OutputTypeEx>
+    <StartupObject />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Util\ConcurrentHashSet.cs" />
+    <Compile Remove="Util\ZKPathUtil.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\ZooKeeperClient\Client\ZKClient.cs" Link="Client\ZKClient.cs" />
+    <Compile Include="..\ZooKeeperClient\Client\ZKClientBuilder.cs" Link="Client\ZKClientBuilder.cs" />
+    <Compile Include="..\ZooKeeperClient\Client\ZKData.cs" Link="Client\ZKData.cs" />
+    <Compile Include="..\ZooKeeperClient\Client\ZKNode.cs" Link="Client\ZKNode.cs" />
+    <Compile Include="..\ZooKeeperClient\Client\ZKTask.cs" Link="Client\ZKTask.cs" />
+    <Compile Include="..\ZooKeeperClient\Connection\IZKConnection.cs" Link="Connection\IZKConnection.cs" />
+    <Compile Include="..\ZooKeeperClient\Connection\ZKConnection.cs" Link="Connection\ZKConnection.cs" />
+    <Compile Include="..\ZooKeeperClient\Leader\ILeaderSelector.cs" Link="Leader\ILeaderSelector.cs" />
+    <Compile Include="..\ZooKeeperClient\Leader\IZKLeaderSelectorListener.cs" Link="Leader\IZKLeaderSelectorListener.cs" />
+    <Compile Include="..\ZooKeeperClient\Leader\ZKLeaderSelector.cs" Link="Leader\ZKLeaderSelector.cs" />
+    <Compile Include="..\ZooKeeperClient\Leader\ZKLeaderSelectorListener.cs" Link="Leader\ZKLeaderSelectorListener.cs" />
+    <Compile Include="..\ZooKeeperClient\Listener\ContentWatcher.cs" Link="Listener\ContentWatcher.cs" />
+    <Compile Include="..\ZooKeeperClient\Listener\IZKChildListener.cs" Link="Listener\IZKChildListener.cs" />
+    <Compile Include="..\ZooKeeperClient\Listener\IZKDataListener.cs" Link="Listener\IZKDataListener.cs" />
+    <Compile Include="..\ZooKeeperClient\Listener\IZKStateListener.cs" Link="Listener\IZKStateListener.cs" />
+    <Compile Include="..\ZooKeeperClient\Listener\ZKChildListener.cs" Link="Listener\ZKChildListener.cs" />
+    <Compile Include="..\ZooKeeperClient\Listener\ZKDataListener.cs" Link="Listener\ZKDataListener.cs" />
+    <Compile Include="..\ZooKeeperClient\Listener\ZKStateListener.cs" Link="Listener\ZKStateListener.cs" />
+    <Compile Include="..\ZooKeeperClient\Lock\IZKLock.cs" Link="Lock\IZKLock.cs" />
+    <Compile Include="..\ZooKeeperClient\Lock\ZKDistributedLock.cs" Link="Lock\ZKDistributedLock.cs" />
+    <Compile Include="..\ZooKeeperClient\Queue\ZKDistributedQueue.cs" Link="Queue\ZKDistributedQueue.cs" />
+    <Compile Include="..\ZooKeeperClient\Serialize\IZKSerializer.cs" Link="Serialize\IZKSerializer.cs" />
+    <Compile Include="..\ZooKeeperClient\Serialize\SerializableSerializer.cs" Link="Serialize\SerializableSerializer.cs" />
+    <Compile Include="..\ZooKeeperClient\Util\ConcurrentHashSet.cs" Link="Util\ConcurrentHashSet.cs" />
+    <Compile Include="..\ZooKeeperClient\Util\ZKPathUtil.cs" Link="Util\ZKPathUtil.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Connection\" />
+    <Folder Include="Client\" />
+    <Folder Include="Listener\" />
+    <Folder Include="Util\" />
+    <Folder Include="Leader\" />
+    <Folder Include="Queue\" />
+    <Folder Include="Lock\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\ZooKeeperClient\log4net.config" Link="log4net.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="log4net" Version="2.0.8" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
+    <PackageReference Include="ZooKeeperNetEx" Version="3.4.9.4" />
+  </ItemGroup>
+
+</Project>

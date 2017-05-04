@@ -4,7 +4,7 @@ using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ZookeeperClient.Client
+namespace ZooKeeperClient.Client
 {
     public class ZKTask
     {
@@ -16,23 +16,9 @@ namespace ZookeeperClient.Client
 
         private BlockingCollection<ZKEvent> _events = new BlockingCollection<ZKEvent>(new ConcurrentQueue<ZKEvent>());
 
-        private int _eventId = 0;
-
         public class ZKEvent
         {
-            private string description { set; get; }
-
             public Func<Task>  Run { set; get; }
-
-            public ZKEvent(string description)
-            {
-                this.description = description;
-            }
-       
-            public override string ToString()
-            {
-                return $"ZKEvent[{description}]";
-            }
         }
 
         public ZKTask(string name)
@@ -50,11 +36,7 @@ namespace ZookeeperClient.Client
         {
             while (!tokenSource.IsCancellationRequested)
             {
-                LOG.Info("Starting ZookeeperClient event thread.");
                 ZKEvent zkEvent = _events.Take();
-                Interlocked.Increment(ref _eventId);
-                int eventId = _eventId;
-                LOG.Debug($"Delivering event #{eventId}{zkEvent.ToString()}" );
                 try
                 {
                     zkEvent.Run();
@@ -63,7 +45,6 @@ namespace ZookeeperClient.Client
                 {
                     LOG.Error($"Error handling event {zkEvent.ToString()}", e);
                 }
-                LOG.Debug($"Delivering event #{eventId} done");
             }
         }
 
@@ -71,7 +52,6 @@ namespace ZookeeperClient.Client
         {
             if (_zkTask != null && _zkTask.Status != TaskStatus.Canceled)
             {
-                LOG.Debug($"New event: {@event.ToString()}");
                 _events.Add(@event);
             }
         }

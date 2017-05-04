@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace ZookeeperClient.Listener
+namespace ZooKeeperClient.Listener
 {
     public class ZKDataListener : IZKDataListener
     {

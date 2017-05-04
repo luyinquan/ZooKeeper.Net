@@ -1,4 +1,4 @@
-﻿namespace ZookeeperClient.Util
+﻿namespace ZooKeeperClient.Util
 {
     public class ZKPathUtil
     {

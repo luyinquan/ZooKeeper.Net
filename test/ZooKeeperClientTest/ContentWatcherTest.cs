@@ -1,36 +1,35 @@
 ﻿using log4net;
-using NUnit.Framework;
 using System;
 using System.Threading.Tasks;
-using ZookeeperClient.Client;
-using ZookeeperClient.Listener;
-using ZookeeperClient.Util;
+using Xunit;
+using ZooKeeperClient.Client;
+using ZooKeeperClient.Listener;
+using ZooKeeperClient.Util;
 
-namespace ZookeeperClient.Test
+namespace ZooKeeperClient.Test
 {
-    public class ContentWatcherTest
+    public class ContentWatcherTest : IDisposable
     {
         private static string FILE_NAME = "/ContentWatcherTest";
         protected ZKClient _zkClient;
         protected static readonly ILog LOG = LogManager.GetLogger(typeof(ContentWatcherTest));
 
 
-        [OneTimeSetUp]
-        public async Task SetUp()
+        public ContentWatcherTest()
         {
             LOG.Info("------------ BEFORE -------------");
             _zkClient = new ZKClient(TestUtil.zkServers);
-            await TestUtil.ReSetPathUnCreate(_zkClient, FILE_NAME);
+            TestUtil.ReSetPathUnCreate(_zkClient, FILE_NAME).GetAwaiter().GetResult();
         }
 
-        [OneTimeTearDown]
-        public void TearDown()
+        public void Dispose()
         {
             LOG.Info("------------ AFTER -------------");
             _zkClient.Close();
         }
 
-        [Test]
+
+        [Fact]
         public async Task TestGetContent()
         {
             LOG.Info("--- testGetContent");
@@ -51,7 +50,7 @@ namespace ZookeeperClient.Test
             watcher.Stop();
         }
 
-        [Test]
+        [Fact]
         public async Task TestGetContentWaitTillCreated()
         {
             LOG.Info("--- testGetContentWaitTillCreated");
@@ -81,7 +80,7 @@ namespace ZookeeperClient.Test
             Assert.True("aaa" == contentHolder.value);
         }
 
-        [Test]
+        [Fact]
         public async Task TestHandlingNullContent()
         {
             LOG.Info("--- testHandlingNullContent");

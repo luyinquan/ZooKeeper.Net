@@ -1,16 +1,15 @@
 ﻿using System;
-using System.Configuration;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using ZookeeperClient.Client;
+using ZooKeeperClient.Client;
 
-namespace ZookeeperClient.Util
+namespace ZooKeeperClient.Util
 {
     public class TestUtil
     {
         //zk集群的地址  
-        public static string zkServers = ConfigurationManager.AppSettings["zkServers"];
+        public static string zkServers = "127.0.0.1:2181";
 
         public static T WaitUntil<T>(T expectedValue, Func<T> callable, TimeSpan timeout)
         {

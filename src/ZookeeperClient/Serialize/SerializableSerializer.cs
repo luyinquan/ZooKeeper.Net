@@ -1,28 +1,40 @@
-﻿using System.IO;
-using System.Runtime.Serialization;
-using System.Runtime.Serialization.Formatters.Binary;
+﻿using Newtonsoft.Json;
+using System.IO;
+using System.Text;
 
-namespace ZookeeperClient.Serialize
+namespace ZooKeeperClient.Serialize
 {
     public class SerializableSerializer : IZKSerializer
     {
-        public byte[] Serialize(object obj)
+        public byte[] Serialize<T>(T obj)
         {
-                using (MemoryStream ms = new MemoryStream())
+            using (var ms = new MemoryStream())
+            {
+                using (var sw = new StreamWriter(ms, Encoding.UTF8))
                 {
-                    IFormatter formatter = new BinaryFormatter();
-                    formatter.Serialize(ms, obj);
-                    return ms.GetBuffer();
+                    using (JsonWriter writer = new JsonTextWriter(sw))
+                    {
+                        new JsonSerializer().Serialize(writer, obj, typeof(T));
+                        sw.Flush();
+                        return ms.ToArray();
+                    }
                 }
+            }
         }
 
-        public object Deserialize(byte[] bytes)
+        public T Deserialize<T>(byte[] bytes)
         {
-                using (MemoryStream ms = new MemoryStream(bytes))
+            using (var ms = new MemoryStream(bytes))
+            {
+                using (var sr = new StreamReader(ms, Encoding.UTF8))
                 {
-                    IFormatter formatter = new BinaryFormatter();
-                    return formatter.Deserialize(ms);
+                    using (JsonReader reader = new JsonTextReader(sr))
+                    {
+                        return (T)new JsonSerializer().Deserialize(reader, typeof(T));
+                    }
                 }
+            }
         }
     }
 }
+
