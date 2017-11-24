@@ -830,11 +830,11 @@ namespace ZooKeeperClient.Client
             }
         }
 
-        private Mutex _stateChangedCondition = new Mutex();
+        private AutoResetEvent _stateChangedCondition = new AutoResetEvent(false);
 
-        private Mutex _nodeEventCondition = new Mutex();
+        private AutoResetEvent _nodeEventCondition = new AutoResetEvent(false);
 
-        private Mutex _dataChangedCondition = new Mutex();
+        private AutoResetEvent _dataChangedCondition = new AutoResetEvent(false);
 
         public override async Task process(WatchedEvent @event)
         {
@@ -871,7 +871,7 @@ namespace ZooKeeperClient.Client
             {
                 if (stateChanged)
                 {
-                    _stateChangedCondition.ReleaseMutex();
+                    _stateChangedCondition.Set();
 
                     // If the session expired we have to signal all conditions, because watches might have been removed and
                     // there is no guarantee that those
@@ -879,9 +879,9 @@ namespace ZooKeeperClient.Client
                     // TODO PVo write a test for this
                     if (@event.getState() == KeeperState.Expired)
                     {
-                        _nodeEventCondition.ReleaseMutex();
+                        _nodeEventCondition.Set();
 
-                        _dataChangedCondition.ReleaseMutex();
+                        _dataChangedCondition.Set();
 
                         // We also have to notify all listeners that something might have changed
                         await Task.Run(() => FireAllEvents(@event.get_Type()));
@@ -889,11 +889,11 @@ namespace ZooKeeperClient.Client
                 }
                 if (nodeChanged)
                 {
-                    _nodeEventCondition.ReleaseMutex();
+                    _nodeEventCondition.Set();
                 }
                 if (dataChanged)
                 {
-                    _dataChangedCondition.ReleaseMutex();
+                    _dataChangedCondition.Set();
                 }
                 LOG.Debug("Leaving process event");
             }
